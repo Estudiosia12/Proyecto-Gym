@@ -1,0 +1,142 @@
+-- ==================== ADMINISTRADOR POR DEFECTO ====================
+INSERT INTO administradores (usuario, password, nombre, email, fecha_creacion, activo) 
+VALUES ('admin', 'admin123', 'Administrador Principal', 'admin@goldfitness.com', NOW(), true)
+ON CONFLICT (usuario) DO NOTHING;
+
+-- ==================== PLANES BÁSICOS ====================
+INSERT INTO planes (nombre, precio, descripcion, acceso_clases, asesoria_personalizada, activo)
+VALUES ('Basico', 80.00, 'Acceso limitado a la zona de musculación y cardio', false, false, true)
+ON CONFLICT (nombre) DO UPDATE SET activo = true;
+
+INSERT INTO planes (nombre, precio, descripcion, acceso_clases, asesoria_personalizada, activo)
+VALUES ('Premium', 100.00, 'Todo lo del Plan Básico + Acceso a todas las clases grupales', true, true, true)
+ON CONFLICT (nombre) DO UPDATE SET activo = true;
+
+-- ==================== RUTINAS PREDEFINIDAS ====================
+
+-- OBJETIVO: BAJAR PESO
+INSERT INTO rutina_predefinida (nombre, descripcion, objetivo, nivel, duracion, frecuencia_semanal, activo) VALUES
+('Rutina Principiante - Bajar Peso', 'Rutina diseñada para quemar calorías y mejorar tu resistencia cardiovascular con ejercicios de bajo impacto', 'Bajar peso', 'Principiante', 45, 3, true),
+('Rutina Intermedia - Bajar Peso', 'Rutina con mayor intensidad cardiovascular y ejercicios funcionales para acelerar la quema de grasa', 'Bajar peso', 'Intermedio', 50, 4, true),
+('Rutina Avanzada - Bajar Peso', 'Rutina de alta intensidad con intervalos HIIT y ejercicios compuestos para máxima quema calórica', 'Bajar peso', 'Avanzado', 60, 5, true);
+
+-- OBJETIVO: TONIFICAR
+INSERT INTO rutina_predefinida (nombre, descripcion, objetivo, nivel, duracion, frecuencia_semanal, activo) VALUES
+('Rutina Principiante - Tonificar', 'Rutina de fuerza básica con peso corporal para definir y fortalecer músculos', 'Tonificar', 'Principiante', 40, 3, true),
+('Rutina Intermedia - Tonificar', 'Rutina de fuerza con pesas moderadas y ejercicios de resistencia para definición muscular', 'Tonificar', 'Intermedio', 50, 4, true),
+('Rutina Avanzada - Tonificar', 'Rutina avanzada de definición con superseries y técnicas de intensidad para esculpir el cuerpo', 'Tonificar', 'Avanzado', 55, 5, true);
+
+-- OBJETIVO: AUMENTAR MASA
+INSERT INTO rutina_predefinida (nombre, descripcion, objetivo, nivel, duracion, frecuencia_semanal, activo) VALUES
+('Rutina Principiante - Aumentar Masa', 'Rutina de hipertrofia básica enfocada en ejercicios fundamentales para construir base muscular', 'Aumentar masa', 'Principiante', 50, 3, true),
+('Rutina Intermedia - Aumentar Masa', 'Rutina de volumen con ejercicios compuestos y aislados para ganar masa muscular', 'Aumentar masa', 'Intermedio', 60, 4, true),
+('Rutina Avanzada - Aumentar Masa', 'Rutina de hipertrofia avanzada con alto volumen y técnicas intensas para máxima ganancia muscular', 'Aumentar masa', 'Avanzado', 70, 5, true);
+
+-- ==================== EJERCICIOS PARA CADA RUTINA ====================
+
+-- RUTINA 1: Principiante - Bajar Peso
+INSERT INTO ejercicio_rutina (rutina_predefinida_id, nombre, series, repeticiones, descanso, orden, instrucciones) VALUES
+(1, 'Calentamiento en cinta', NULL, NULL, NULL, 1, 'Camina 5 minutos a velocidad moderada para preparar el cuerpo'),
+(1, 'Trote suave en cinta', 3, NULL, 120, 2, 'Trota 5 minutos por serie, mantén un ritmo constante'),
+(1, 'Sentadillas con peso corporal', 3, 15, 90, 3, 'Espalda recta, rodillas alineadas con los pies'),
+(1, 'Flexiones de pecho en pared', 3, 12, 90, 4, 'Mantén el cuerpo recto y controla el movimiento'),
+(1, 'Bicicleta estática', 3, NULL, 90, 5, 'Pedalea 5 minutos por serie a ritmo moderado'),
+(1, 'Abdominales crunch', 3, 15, 60, 6, 'Contrae el abdomen y no fuerces el cuello'),
+(1, 'Estiramiento completo', NULL, NULL, NULL, 7, 'Estira todos los grupos musculares por 5 minutos');
+
+-- RUTINA 2: Intermedio - Bajar Peso
+INSERT INTO ejercicio_rutina (rutina_predefinida_id, nombre, series, repeticiones, descanso, orden, instrucciones) VALUES
+(2, 'Calentamiento dinámico', NULL, NULL, NULL, 1, 'Movimientos articulares y cardio ligero por 5 minutos'),
+(2, 'Burpees', 4, 12, 90, 2, 'Movimiento explosivo completo del cuerpo'),
+(2, 'Mountain climbers', 4, 20, 60, 3, 'Alterna las piernas rápidamente manteniendo el core activo'),
+(2, 'Sentadillas con salto', 4, 15, 90, 4, 'Aterriza suavemente para proteger las rodillas'),
+(2, 'Plancha', 3, NULL, 60, 5, 'Mantén 45 segundos, cuerpo recto desde cabeza hasta pies'),
+(2, 'Trote con intervalos', 5, NULL, 120, 6, 'Alterna 2 min intenso con 2 min moderado'),
+(2, 'Estiramiento profundo', NULL, NULL, NULL, 7, 'Estira cada grupo muscular por 30 segundos');
+
+-- RUTINA 3: Avanzado - Bajar Peso
+INSERT INTO ejercicio_rutina (rutina_predefinida_id, nombre, series, repeticiones, descanso, orden, instrucciones) VALUES
+(3, 'HIIT - Sprint en cinta', 6, NULL, 60, 1, 'Sprint 30 seg máxima intensidad, camina 30 seg'),
+(3, 'Burpees con salto alto', 5, 15, 75, 2, 'Máxima explosividad en cada repetición'),
+(3, 'Box jumps', 4, 12, 90, 3, 'Salta sobre cajón de 60cm, aterriza controlado'),
+(3, 'Kettlebell swings', 5, 20, 75, 4, 'Usa la cadera para generar el impulso, no los brazos'),
+(3, 'Remo con mancuernas', 4, 15, 60, 5, 'Mantén la espalda paralela al suelo'),
+(3, 'Battle ropes', 4, NULL, 90, 6, 'Ondula las cuerdas 45 segundos máxima intensidad'),
+(3, 'Enfriamiento y estiramiento', NULL, NULL, NULL, 7, 'Cardio suave 5 min + estiramientos');
+
+-- RUTINA 4: Principiante - Tonificar
+INSERT INTO ejercicio_rutina (rutina_predefinida_id, nombre, series, repeticiones, descanso, orden, instrucciones) VALUES
+(4, 'Calentamiento articular', NULL, NULL, NULL, 1, 'Moviliza todas las articulaciones por 5 minutos'),
+(4, 'Sentadillas', 3, 15, 90, 2, 'Desciende hasta que muslos estén paralelos al suelo'),
+(4, 'Flexiones en rodillas', 3, 12, 90, 3, 'Mantén el core activo durante todo el movimiento'),
+(4, 'Plancha frontal', 3, NULL, 90, 4, 'Mantén 30 segundos, incrementa progresivamente'),
+(4, 'Zancadas alternas', 3, 10, 90, 5, '10 repeticiones por pierna, rodilla a 90 grados'),
+(4, 'Elevación de cadera', 3, 15, 60, 6, 'Aprieta glúteos en la parte superior'),
+(4, 'Superman', 3, 12, 60, 7, 'Levanta brazos y piernas simultáneamente'),
+(4, 'Estiramiento de flexibilidad', NULL, NULL, NULL, 8, 'Estira suavemente cada músculo trabajado');
+
+-- RUTINA 5: Intermedio - Tonificar
+INSERT INTO ejercicio_rutina (rutina_predefinida_id, nombre, series, repeticiones, descanso, orden, instrucciones) VALUES
+(5, 'Sentadillas con mancuernas', 4, 12, 90, 1, 'Sostén mancuernas de 5-8kg a los lados'),
+(5, 'Press de pecho con mancuernas', 4, 12, 90, 2, 'Controla el descenso, explosivo al subir'),
+(5, 'Peso muerto rumano', 4, 12, 90, 3, 'Mantén la espalda recta, siente el estiramiento en isquios'),
+(5, 'Remo horizontal', 4, 12, 75, 4, 'Aprieta los omóplatos en la contracción'),
+(5, 'Press militar con mancuernas', 4, 10, 90, 5, 'Sube verticalmente sin arquear la espalda'),
+(5, 'Curl de bíceps alternado', 3, 12, 60, 6, 'Controla el movimiento, no uses impulso'),
+(5, 'Fondos en banco', 3, 12, 60, 7, 'Trabaja el tríceps con control'),
+(5, 'Plancha lateral', 3, NULL, 60, 8, 'Mantén 30 seg por lado');
+
+-- RUTINA 6: Avanzado - Tonificar
+INSERT INTO ejercicio_rutina (rutina_predefinida_id, nombre, series, repeticiones, descanso, orden, instrucciones) VALUES
+(6, 'Superserie: Sentadillas + Saltos', 4, 12, 90, 1, '12 sentadillas pesadas + 12 saltos sin pausa'),
+(6, 'Press banca plano', 4, 10, 90, 2, 'Usa el 75% de tu 1RM'),
+(6, 'Peso muerto convencional', 4, 8, 120, 3, 'Mantén la técnica perfecta con carga alta'),
+(6, 'Dominadas', 4, 8, 90, 4, 'Si no puedes, usa banda elástica de asistencia'),
+(6, 'Superserie: Press militar + Elevaciones laterales', 4, 10, 75, 5, 'Sin pausa entre ejercicios'),
+(6, 'Curl 21s', 3, 21, 60, 6, '7 reps mitad inferior + 7 mitad superior + 7 completas'),
+(6, 'Fondos en paralelas', 3, 12, 75, 7, 'Baja hasta 90 grados en codos');
+
+-- RUTINA 7: Principiante - Aumentar Masa
+INSERT INTO ejercicio_rutina (rutina_predefinida_id, nombre, series, repeticiones, descanso, orden, instrucciones) VALUES
+(7, 'Sentadilla con barra', 4, 10, 120, 1, 'Aprende la técnica correcta, usa barra vacía al inicio'),
+(7, 'Press de banca', 4, 10, 120, 2, 'Agarre medio, baja controlado hasta el pecho'),
+(7, 'Remo con barra', 4, 10, 90, 3, 'Tira hacia el abdomen bajo, aprieta espalda'),
+(7, 'Press militar con barra', 3, 10, 90, 4, 'Sube la barra verticalmente sin impulso'),
+(7, 'Curl con barra', 3, 12, 75, 5, 'Mantén los codos pegados al cuerpo'),
+(7, 'Extensiones de tríceps', 3, 12, 75, 6, 'Solo mueve los antebrazos, codos fijos'),
+(7, 'Crunch con peso', 3, 15, 60, 7, 'Sostén disco de 5kg en el pecho');
+
+-- RUTINA 8: Intermedio - Aumentar Masa
+INSERT INTO ejercicio_rutina (rutina_predefinida_id, nombre, series, repeticiones, descanso, orden, instrucciones) VALUES
+(8, 'Sentadilla profunda', 5, 8, 120, 1, 'Usa el 80% de tu 1RM, desciende completo'),
+(8, 'Press banca inclinado', 4, 8, 120, 2, 'Inclinación 30 grados, enfoca pecho superior'),
+(8, 'Peso muerto', 5, 6, 150, 3, 'Ejercicio rey para masa, técnica perfecta'),
+(8, 'Dominadas lastradas', 4, 8, 120, 4, 'Agrega peso progresivamente'),
+(8, 'Press militar sentado', 4, 8, 90, 5, 'Usa barra o mancuernas pesadas'),
+(8, 'Curl martillo', 4, 10, 75, 6, 'Trabajo completo de bíceps y braquial'),
+(8, 'Fondos con lastre', 4, 10, 90, 7, 'Agrega peso en cinturón de lastre'),
+(8, 'Elevaciones de pierna colgado', 3, 12, 75, 8, 'Trabaja abdomen con carga');
+
+-- RUTINA 9: Avanzado - Aumentar Masa
+INSERT INTO ejercicio_rutina (rutina_predefinida_id, nombre, series, repeticiones, descanso, orden, instrucciones) VALUES
+(9, 'Sentadilla 5x5', 5, 5, 180, 1, 'Usa el 85-90% de tu 1RM, fuerza pura'),
+(9, 'Press banca 5x5', 5, 5, 180, 2, 'Máximo peso con técnica perfecta'),
+(9, 'Peso muerto 5x5', 5, 5, 180, 3, 'Desarrollo de fuerza y masa total'),
+(9, 'Press militar de pie', 5, 6, 120, 4, 'Sin impulso de piernas, solo hombros'),
+(9, 'Remo pendlay', 5, 6, 120, 5, 'Tira explosivo desde el suelo cada rep'),
+(9, 'Dominadas con lastre', 4, 6, 120, 6, 'Agrega 10-20kg extra'),
+(9, 'Curl con barra Z', 4, 8, 90, 7, 'Máximo peso controlado'),
+(9, 'Fondos pesados', 4, 8, 90, 8, 'Agrega peso significativo'),
+(9, 'Rueda abdominal', 4, 12, 90, 9, 'Ejercicio avanzado de core');
+
+-- ==================== INSTRUCTORES ====================
+INSERT INTO instructores (nombre, dni, email, telefono, especialidad, fecha_contratacion, activo) VALUES
+('Carlos Mendoza', '12345678', 'carlos.mendoza@goldfitness.com', '987654321', 'Spinning', CURRENT_DATE, TRUE),
+('María González', '23456789', 'maria.gonzalez@goldfitness.com', '987654322', 'Zumba', CURRENT_DATE, TRUE),
+('Jorge Ramírez', '34567890', 'jorge.ramirez@goldfitness.com', '987654323', 'CrossFit', CURRENT_DATE, TRUE),
+('Ana Torres', '45678901', 'ana.torres@goldfitness.com', '987654324', 'Yoga', CURRENT_DATE, TRUE),
+('Luis Paredes', '56789012', 'luis.paredes@goldfitness.com', '987654325', 'Funcional', CURRENT_DATE, TRUE),
+('Sofía Castillo', '67890123', 'sofia.castillo@goldfitness.com', '987654326', 'Pilates', CURRENT_DATE, TRUE),
+('Roberto Silva', '78901234', 'roberto.silva@goldfitness.com', '987654327', 'Boxing', CURRENT_DATE, TRUE),
+('Daniela Vargas', '89012345', 'daniela.vargas@goldfitness.com', '987654328', 'Aeróbicos', CURRENT_DATE, TRUE)
+ON CONFLICT (dni) DO NOTHING;
