@@ -22,7 +22,7 @@ public class ProgresoController {
 
     @GetMapping
     public String mostrarProgreso(HttpSession session, Model model) {
-        // VALIDAR SESIÓN
+        // Validar
         Administrador admin = (Administrador) session.getAttribute("administrador");
         if (admin == null) {
             return "redirect:/admin/login";

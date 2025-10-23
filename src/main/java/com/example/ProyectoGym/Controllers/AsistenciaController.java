@@ -20,7 +20,7 @@ public class AsistenciaController {
 
     @GetMapping
     public String mostrarAsistencias(HttpSession session, Model model) {
-        // ✅ VALIDAR SESIÓN
+        // Validar sesion
         Administrador admin = (Administrador) session.getAttribute("administrador");
         if (admin == null) {
             return "redirect:/admin/login";
