@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clases - Admin Gold Fitness</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+        --gold-primary: #131443;
+        --gold-accent: #D4B608;
+        --gold-white: #FFFFFF;
+    }
+
+    * {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #f5f5f5;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        background-color: var(--gold-primary);
+        min-height: 100vh;
+        width: 270px;
+        position: fixed;
+        left: 0;
+        top: 0;
+        padding: 2rem 0;
+        color: var(--gold-white);
+    }
+
+    .logo-section {
+        text-align: center;
+        padding: 1rem 1.5rem 2rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .logo-text {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--gold-white);
+    }
+
+    .logo-accent {
+        color: var(--gold-accent);
+    }
+
+    .nav-menu {
+        list-style: none;
+        padding: 2rem 0;
+    }
+
+    .nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        color: var(--gold-white);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: var(--gold-accent);
+    }
+
+    .nav-link.active {
+        background-color: var(--gold-accent);
+        color: var(--gold-primary);
+        font-weight: 600;
+    }
+
+    .nav-icon {
+        margin-right: 1rem;
+        font-size: 1.3rem;
+    }
+
+    .logout-section {
+        position: absolute;
+        bottom: 2rem;
+        width: 100%;
+        padding: 0 1.5rem;
+    }
+
+    /* Main Content */
+    .main-content {
+        margin-left: 270px;
+        padding: 2rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+    }
+
+    .btn-primary-custom {
+        background-color: var(--gold-accent);
+        color: var(--gold-primary);
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: #b89e07;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(212, 182, 8, 0.3);
+    }
+
+    /* Clase Cards */
+    .clases-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+
+    .clase-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .clase-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .clase-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .clase-content {
+        padding: 1.5rem;
+    }
+
+    .clase-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .clase-nombre {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+        margin: 0;
+    }
+
+    .badge-status {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-activa {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-inactiva {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .clase-descripcion {
+        color: #666;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .clase-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .info-icon {
+        color: var(--gold-accent);
+    }
+
+    .clase-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .btn-sm-custom {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        flex: 1;
+    }
+
+    .btn-edit {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-toggle {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-toggle:hover {
+        background-color: #545b62;
+    }
+
+    /* Alert */
+    .alert-custom {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        min-width: 300px;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: none;
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+    }
+
+    .alert-success-custom {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+
+    .alert-error-custom {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 100%;
+            position: relative;
+            min-height: auto;
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .logout-section {
+            position: relative;
+            bottom: 0;
+        }
+
+        .clases-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Alert -->
+<div id="alert" class="alert-custom"></div>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="logo-section">
+    <div class="logo-text">GOLD <span class="logo-accent">FITNESS</span></div>
+  </div>
+
+  <ul class="nav-menu">
+    <li class="nav-item">
+      <a href="/admin/dashboard" class="nav-link">
+        <i class="bi bi-bookmarks-fill nav-icon"></i>
+        Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/admin/miembros" class="nav-link">
+        <i class="bi bi-person-rolodex nav-icon"></i>
+        Miembros
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/admin/planes" class="nav-link">
+        <i class="bi bi-briefcase-fill nav-icon"></i>
+        Planes
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/admin/asistencias" class="nav-link">
+        <i class="bi bi-person-badge nav-icon"></i>
+        Asistencias
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/admin/clases" class="nav-link active">
+        <i class="bi bi-people-fill nav-icon"></i>
+        Clases
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/admin/progreso" class="nav-link">
+        <i class="bi bi-graph-up nav-icon"></i>
+        Progreso
+      </a>
+    </li>
+  </ul>
+
+  <div class="logout-section">
+    <a href="/admin/logout" class="nav-link">
+      <i class="bi bi-door-open-fill nav-icon"></i>
+      Cerrar sesión
+    </a>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">CLASES</h1>
+    <a href="/admin/clases/nueva" class="btn-primary-custom">
+      <i class="bi bi-plus-circle"></i> Añadir Clase
+    </a>
+  </div>
+
+  <!-- Clases Grid -->
+  <div class="clases-grid">
+    <div th:if="${clases == null or #lists.isEmpty(clases)}" style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #666;">
+      <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+      <p style="margin-top: 1rem;">No hay clases registradas</p>
+    </div>
+
+    <div class="clase-card" th:each="clase : ${clases}">
+      <img th:src="${clase.imagenUrl}" alt="Clase" class="clase-image">
+
+      <div class="clase-content">
+        <div class="clase-header">
+          <h3 class="clase-nombre" th:text="${clase.nombre}">Spinning</h3>
+          <span class="badge-status"
+                th:classappend="${clase.activa} ? 'badge-activa' : 'badge-inactiva'"
+                th:text="${clase.activa} ? 'Activa' : 'Inactiva'">
+                        Activa
+                    </span>
+        </div>
+
+        <p class="clase-descripcion" th:text="${clase.descripcion}">
+          Descripción de la clase
+        </p>
+
+        <div class="clase-info">
+          <div class="info-item">
+            <i class="bi bi-calendar3 info-icon"></i>
+            <span th:text="${clase.diaSemana}">Lunes y Miércoles</span>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-clock info-icon"></i>
+            <span th:text="${clase.horaInicio} + ' - ' + ${clase.duracion} + ' min'">18:00 - 45 min</span>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-person-fill info-icon"></i>
+            <span th:text="${clase.instructor}">Sin asignar</span>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-people-fill info-icon"></i>
+            <span th:text="${clase.inscritos} + ' / ' + ${clase.capacidad}">0 / 20</span>
+          </div>
+        </div>
+
+        <div class="clase-actions">
+          <a th:href="@{/admin/clases/editar/{id}(id=${clase.id})}" class="btn-sm-custom btn-edit">
+            <i class="bi bi-pencil-fill"></i> Editar
+          </a>
+          <button class="btn-sm-custom btn-toggle"
+                  th:attr="data-id=${clase.id}"
+                  onclick="cambiarEstado(this)">
+            <i class="bi bi-toggle-on"></i>
+            <span th:text="${clase.activa} ? 'Desactivar' : 'Activar'">Toggle</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+  // Mostrar mensaje flash si existe
+  /*<![CDATA[*/
+  const mensaje = /*[[${mensaje}]]*/ null;
+  const tipoMensaje = /*[[${tipoMensaje}]]*/ null;
+
+  if (mensaje) {
+      showAlert(mensaje, tipoMensaje);
+  }
+  /*]]>*/
+
+  // Cambiar estado de clase
+  function cambiarEstado(button) {
+      const claseId = button.getAttribute('data-id');
+      button.disabled = true;
+
+      fetch(`/admin/clases/cambiar-estado/${claseId}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.status === 'success') {
+              showAlert(data.message, 'success');
+              setTimeout(() => location.reload(), 1500);
+          } else {
+              showAlert(data.message, 'error');
+              button.disabled = false;
+          }
+      })
+      .catch(error => {
+          showAlert('Error al cambiar estado', 'error');
+          button.disabled = false;
+      });
+  }
+
+  // Mostrar alerta
+  function showAlert(message, type) {
+      const alert = document.getElementById('alert');
+      alert.className = `alert-custom alert-${type}-custom show`;
+      alert.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill'}"></i> ${message}`;
+
+      setTimeout(() => {
+          alert.classList.remove('show');
+      }, 5000);
+  }
+</script>
+</body>
+</html>

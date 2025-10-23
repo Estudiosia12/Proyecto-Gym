@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Administrador - Gold Fitness</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+        --gold-primary: #131443;
+        --gold-accent: #D4B608;
+        --gold-white: #FFFFFF;
+        --blue-bg: #3681C7;
+        --light-blue: #6BB8E3;
+    }
+
+    * {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        min-height: 100vh;
+        background: linear-gradient(135deg, var(--blue-bg) 0%, var(--light-blue) 100%);
+    }
+
+    .header-section {
+        background-color: var(--gold-primary);
+        padding: 1.5rem 0;
+    }
+
+    .navbar-brand {
+        color: var(--gold-white) !important;
+        font-weight: 700;
+        font-size: 1.8rem;
+        text-decoration: none;
+    }
+
+    .gold-text {
+        color: var(--gold-accent) !important;
+    }
+
+    .back-to-selection {
+        position: absolute;
+        top: 120px;
+        left: 2rem;
+        color: var(--gold-white);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1rem;
+        transition: color 0.3s ease;
+    }
+
+    .back-to-selection:hover {
+        color: var(--gold-accent);
+    }
+
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 100px);
+        padding: 2rem 0;
+    }
+
+    .login-card {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        overflow: hidden;
+        max-width: 900px;
+        width: 100%;
+        display: flex;
+    }
+
+    .login-left {
+        flex: 1;
+        background: linear-gradient(135deg, #131443 0%, #1e2563 100%);
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+    }
+
+    .login-left img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 2rem;
+    }
+
+    .login-right {
+        flex: 1;
+        padding: 3rem;
+    }
+
+    .login-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--gold-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control:focus {
+        border-color: var(--gold-accent);
+        box-shadow: 0 0 0 0.2rem rgba(212, 182, 8, 0.25);
+    }
+
+    .forgot-password {
+        text-align: right;
+        margin-bottom: 1.5rem;
+    }
+
+    .forgot-password a {
+        color: #3681C7;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .forgot-password a:hover {
+        text-decoration: underline;
+    }
+
+    .btn-login {
+        width: 100%;
+        background-color: var(--gold-primary);
+        color: white;
+        border: none;
+        padding: 0.9rem;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+        background-color: var(--gold-accent);
+        color: var(--gold-primary);
+    }
+
+    .admin-contact {
+        text-align: center;
+        margin-top: 2rem;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .alert-custom {
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        color: var(--gold-primary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .back-link:hover {
+        color: var(--gold-accent);
+    }
+
+    @media (max-width: 768px) {
+        .login-card {
+            flex-direction: column;
+        }
+
+        .login-left {
+            padding: 2rem;
+        }
+
+        .login-right {
+            padding: 2rem;
+        }
+
+        .login-left img {
+            max-width: 200px;
+        }
+
+        .back-to-selection {
+            position: static;
+            display: block;
+            text-align: center;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+        }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header-section">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      GOLD <span class="gold-text">FITNESS</span>
+    </a>
+  </div>
+</div>
+
+<!-- Back to selection link -->
+<a href="/login" class="back-to-selection d-none d-md-block">← Volver a selección</a>
+
+<!-- Login Container -->
+<div class="login-container">
+  <div class="container">
+    <!-- Mobile back link -->
+    <a href="/login" class="back-to-selection d-md-none text-center d-block">← Volver a selección</a>
+
+    <div class="login-card mx-auto">
+      <!-- Left Side - Image -->
+      <div class="login-left">
+        <img src="/imagenes/fondo-ad.png" alt="Administrador">
+        <h2 style="font-weight: 700; font-size: 2rem; margin-top: 1rem;">ADMIN</h2>
+      </div>
+
+      <!-- Right Side - Form -->
+      <div class="login-right">
+        <h2 class="login-title">LOGIN</h2>
+
+        <!-- Mensaje de error -->
+        <div th:if="${mensaje}"
+             th:class="${'alert alert-custom alert-' + (tipoMensaje == 'success' ? 'success' : 'danger')}">
+          <span th:text="${mensaje}"></span>
+        </div>
+
+        <!-- Formulario de Login -->
+        <form th:action="@{/admin/login}" method="post">
+          <div class="mb-3">
+            <label for="usuario" class="form-label">Administrador</label>
+            <input type="text"
+                   class="form-control"
+                   id="usuario"
+                   name="usuario"
+                   placeholder="Usuario"
+                   required>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password"
+                   class="form-control"
+                   id="password"
+                   name="password"
+                   placeholder="******************"
+                   required>
+          </div>
+
+          <div class="forgot-password">
+            <a href="#">Olvidaste tu contraseña</a>
+          </div>
+
+          <button type="submit" class="btn-login">Acceder</button>
+        </form>
+
+        <div class="admin-contact">
+          GoldFitness@gmail.com
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gold Fitness - Tu gimnasio de confianza</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Google Fonts - Roboto -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
     <style>
@@ -213,7 +210,7 @@
     </style>
 </head>
 <body>
-<!-- Navbar -->
+
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container">
         <a class="navbar-brand" href="/">
@@ -228,7 +225,7 @@
                     <a class="nav-link" href="/registro">¡Inscríbete ahora!</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#nosotros">Nosotros</a>
+                    <a class="nav-link" href="/nosotros">Nosotros</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/login">Iniciar sesión</a>
@@ -238,7 +235,6 @@
     </div>
 </nav>
 
-<!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
         <div class="row justify-content-end">
@@ -249,7 +245,6 @@
     </div>
 </section>
 
-<!-- Plans Section -->
 <section class="plans-section">
     <div class="container">
         <div class="text-center mb-5">
@@ -258,27 +253,34 @@
         </div>
 
         <div class="row justify-content-center align-items-center">
+            <!-- PLAN BÁSICO - DINÁMICO -->
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="plan-card text-center">
                     <h3 class="plan-title">PLAN BÁSICO</h3>
-                    <p>Acceso limitado a la zona de musculación y cardio</p>
+                    <p th:text="${planBasico != null ? planBasico.descripcion : 'Acceso limitado a la zona de musculación y cardio'}">Acceso limitado a la zona de musculación y cardio</p>
                     <p>Horario estándar (10:00 AM - 10:00 PM)</p>
                     <p>Entrena en un ambiente relajado</p>
-                    <p class="plan-price">Desde: S/ 15,50 /mes</p>
+                    <p class="plan-price">
+                        Desde: S/ <span th:text="${planBasico != null ? #numbers.formatDecimal(planBasico.precio, 1, 2) : '80,00'}">80,00</span> /mes
+                    </p>
                 </div>
             </div>
 
+            <!-- LOGO CENTRAL -->
             <div class="col-lg-4 col-md-6 text-center mb-4">
                 <img src="/imagenes/logofisico.png" alt="Gold Fitness Logo" class="logo-center mb-3">
             </div>
 
+            <!-- PLAN PREMIUM - DINÁMICO -->
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="plan-card text-center">
                     <h3 class="plan-title">PLAN PREMIUM</h3>
                     <p>Todo lo del Plan Básico +</p>
                     <p>Acceso a todas las clases grupales (Spinning, Zumba, Funcional)</p>
                     <p>Asesoría especial para definir tu rutina</p>
-                    <p class="plan-price">Desde: S/ 30,00 /mes</p>
+                    <p class="plan-price">
+                        Desde: S/ <span th:text="${planPremium != null ? #numbers.formatDecimal(planPremium.precio, 1, 2) : '100,00'}">100,00</span> /mes
+                    </p>
                 </div>
             </div>
         </div>
@@ -289,7 +291,6 @@
     </div>
 </section>
 
-<!-- Classes Section -->
 <section class="classes-section">
     <div class="container">
         <h2 class="section-title">CLASES GRUPALES <span class="gold-text">EXCLUSIVAS</span></h2>
@@ -318,7 +319,6 @@
     </div>
 </section>
 
-<!-- Map Section -->
 <section class="map-section">
     <div class="container">
         <div class="map-container">
@@ -346,7 +346,6 @@
     </div>
 </section>
 
-<!-- Footer -->
 <footer class="footer-custom">
     <div class="container">
         <div class="row">
@@ -358,8 +357,9 @@
             <div class="col-lg-4 mb-4">
                 <h5>Enlaces rápidos</h5>
                 <a href="/" class="footer-link">Inicio</a>
-                <a href="/registro" class="footer-link">Nosotros</a>
-                <a href="/login" class="footer-link">Inscríbete</a>
+                <a href="/nosotros" class="footer-link">Nosotros</a>
+                <a href="/registro" class="footer-link">Inscríbete</a>
+                <a href="/faq" class="footer-link">FAQ</a>
             </div>
             <div class="col-lg-4 mb-4">
                 <h5>Contacto</h5>
@@ -380,7 +380,6 @@
     </div>
 </footer>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
