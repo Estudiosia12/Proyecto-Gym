@@ -1,20 +1,56 @@
 package com.example.ProyectoGym.Model;
+
 import jakarta.persistence.*;
 import java.time.LocalDate;
+
+@Entity
+@Table(name = "miembros")
 public class Miembro {
-    private Long id_miembro;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 100)
     private String nombre;
+
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false, unique = true, length = 8)
     private String dni;
+
+    @Column(length = 15)
     private String telefono;
+
+    @Column(name = "fecha_nacimiento")
     private LocalDate fecha_nacimiento;
+
+    @Column(name = "fecha_registro")
     private LocalDate fechaRegistro;
+
+    @Column(name = "fecha_vencimiento")
+    private LocalDate fechaVencimiento; // NUEVO
+
+    @Column(length = 20)
     private String plan;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plan_id")
+    private Plan planDetalle;
+
+    @Column(nullable = false)
     private Boolean activo = true;
 
+    // Constructores
     public Miembro() {
         this.fechaRegistro = LocalDate.now();
+        this.fechaVencimiento = LocalDate.now().plusMonths(1); // Por defecto: 1 mes
+        this.activo = true;
     }
 
     public Miembro(String nombre, String email, String password, String dni, String telefono,
@@ -27,15 +63,37 @@ public class Miembro {
         this.fecha_nacimiento = fecha_nacimiento;
         this.plan = plan;
         this.fechaRegistro = LocalDate.now();
+        this.fechaVencimiento = LocalDate.now().plusMonths(1); // Calcular 1 mes desde registro
         this.activo = true;
     }
 
-    public Long getId_miembro() {
-        return id_miembro;
+    // Metodo para calcular y actualizar fecha de vencimiento
+    public void renovarMembresia(int meses) {
+        if (this.fechaVencimiento == null || this.fechaVencimiento.isBefore(LocalDate.now())) {
+            // Si está vencida, empezar desde hoy
+            this.fechaVencimiento = LocalDate.now().plusMonths(meses);
+        } else {
+            // Si aún está activa, sumar desde la fecha de vencimiento actual
+            this.fechaVencimiento = this.fechaVencimiento.plusMonths(meses);
+        }
+        this.activo = true;
     }
 
-    public void setId_miembro(Long id_miembro) {
-        this.id_miembro = id_miembro;
+    // Metodo para verificar si la membresía está vencida
+    public boolean estaVencida() {
+        if (this.fechaVencimiento == null) {
+            return true;
+        }
+        return LocalDate.now().isAfter(this.fechaVencimiento);
+    }
+
+    // Getters y Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -94,6 +152,14 @@ public class Miembro {
         this.fechaRegistro = fechaRegistro;
     }
 
+    public LocalDate getFechaVencimiento() {
+        return fechaVencimiento;
+    }
+
+    public void setFechaVencimiento(LocalDate fechaVencimiento) {
+        this.fechaVencimiento = fechaVencimiento;
+    }
+
     public String getPlan() {
         return plan;
     }
@@ -101,7 +167,14 @@ public class Miembro {
     public void setPlan(String plan) {
         this.plan = plan;
     }
-    //git status
+
+    public Plan getPlanDetalle() {
+        return planDetalle;
+    }
+
+    public void setPlanDetalle(Plan planDetalle) {
+        this.planDetalle = planDetalle;
+    }
 
     public Boolean getActivo() {
         return activo;
@@ -110,5 +183,4 @@ public class Miembro {
     public void setActivo(Boolean activo) {
         this.activo = activo;
     }
-
 }
