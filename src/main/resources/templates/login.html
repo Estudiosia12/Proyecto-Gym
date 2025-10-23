@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión - Gold Fitness</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google Fonts - Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+        --gold-primary: #131443;
+        --gold-accent: #D4B608;
+        --gold-white: #FFFFFF;
+        --blue-bg: #3681C7;
+        --light-blue: #6BB8E3;
+    }
+
+    * {
+        font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+        background: linear-gradient(135deg, var(--blue-bg) 0%, var(--light-blue) 100%);
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .header-section {
+        background-color: var(--gold-primary);
+        padding: 2rem 0;
+    }
+
+    .navbar-brand {
+        color: var(--gold-white) !important;
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
+
+    .gold-text {
+        color: var(--gold-accent) !important;
+    }
+
+    .selection-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 120px);
+        padding: 2rem 0;
+    }
+
+    .selection-card {
+        background-color: var(--light-blue);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        margin: 1rem;
+        min-height: 350px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .selection-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+
+    .selection-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 2rem auto;
+        background-color: var(--gold-white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .selection-icon img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+    }
+
+    .selection-title {
+        color: var(--gold-primary);
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-selection {
+        background-color: var(--gold-primary);
+        color: var(--gold-white);
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 25px;
+        font-weight: 500;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-selection:hover {
+        background-color: var(--gold-accent);
+        color: var(--gold-primary);
+        text-decoration: none;
+    }
+
+    .back-link {
+        position: absolute;
+        top: 150px;
+        left: 2rem;
+        color: var(--gold-white);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+
+    .back-link:hover {
+        color: var(--gold-accent);
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .selection-container {
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .selection-card {
+            margin: 0.5rem 0;
+            min-height: 300px;
+            padding: 2rem 1rem;
+        }
+
+        .selection-icon {
+            width: 100px;
+            height: 100px;
+        }
+
+        .selection-icon img {
+            width: 60px;
+            height: 60px;
+        }
+
+        .selection-title {
+            font-size: 1.3rem;
+        }
+
+        .back-link {
+            position: static;
+            display: block;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+    }
+  </style>
+</head>
+<body>
+<!-- Header -->
+<div class="header-section">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      GOLD <span class="gold-text">FITNESS</span>
+    </a>
+  </div>
+</div>
+
+<!-- Back Link -->
+<a href="/" class="back-link d-none d-md-block">← Volver al inicio</a>
+
+<!-- Selection Container -->
+<div class="selection-container">
+  <div class="container">
+    <!-- Back Link Mobile -->
+    <a href="/" class="back-link d-md-none">← Volver al inicio</a>
+
+    <div class="row justify-content-center">
+      <!-- Administrador Card -->
+      <div class="col-lg-4 col-md-6 col-sm-8">
+        <div class="selection-card">
+          <div class="selection-icon">
+            <img src="/imagenes/eleccion_administrador.png" alt="Administrador">
+          </div>
+          <h3 class="selection-title">ADMINISTRADOR</h3>
+          <a href="/admin/login" class="btn-selection">Ingresar</a>
+        </div>
+      </div>
+
+      <!-- Miembros Card -->
+      <div class="col-lg-4 col-md-6 col-sm-8">
+        <div class="selection-card">
+          <div class="selection-icon">
+            <img src="/imagenes/eleccion_miembros.png" alt="Miembros">
+          </div>
+          <h3 class="selection-title">MIEMBROS</h3>
+          <a href="/miembro/login" class="btn-selection">Ingresar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

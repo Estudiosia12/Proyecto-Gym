@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Miembro - Gold Fitness</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google Fonts - Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+        --gold-primary: #131443;
+        --gold-accent: #D4B608;
+        --gold-white: #FFFFFF;
+        --light-blue: #6BB8E3;
+    }
+
+    * {
+        font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+        background: linear-gradient(135deg, var(--light-blue) 0%, #89CCE8 100%);
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .header-section {
+        background-color: var(--gold-primary);
+        padding: 2rem 0;
+    }
+
+    .navbar-brand {
+        color: var(--gold-white) !important;
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
+
+    .gold-text {
+        color: var(--gold-accent) !important;
+    }
+
+    .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 120px);
+        padding: 2rem 0;
+    }
+
+    .login-card {
+        background-color: var(--gold-white);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        max-width: 900px;
+        width: 100%;
+        margin: 1rem;
+        min-height: 500px;
+    }
+
+    .panda-section {
+        background-color: var(--light-blue);
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 500px;
+        height: 100%;
+    }
+
+    .panda-image {
+        width: 100%;
+        height: 100%;
+        max-height: 450px;
+        object-fit: contain;
+    }
+
+    .form-section {
+        padding: 3rem 2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 500px;
+    }
+
+    .login-title {
+        color: var(--gold-primary);
+        font-weight: 700;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .form-label {
+        color: var(--gold-primary);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .form-control {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control:focus {
+        border-color: var(--gold-accent);
+        box-shadow: 0 0 0 0.2rem rgba(212, 182, 8, 0.25);
+    }
+
+    .form-control::placeholder {
+        color: #999;
+    }
+
+    .forgot-password {
+        color: var(--gold-accent);
+        text-decoration: none;
+        font-size: 0.9rem;
+        text-align: right;
+        display: block;
+        margin-bottom: 2rem;
+    }
+
+    .forgot-password:hover {
+        color: var(--gold-primary);
+        text-decoration: underline;
+    }
+
+    .btn-login {
+        background-color: var(--gold-primary);
+        color: var(--gold-white);
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 1.1rem;
+        width: 100%;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .btn-login:hover {
+        background-color: var(--gold-accent);
+        color: var(--gold-primary);
+    }
+
+    .contact-info {
+        text-align: center;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .alert-custom {
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+
+    .back-link {
+        position: absolute;
+        top: 150px;
+        left: 2rem;
+        color: var(--gold-white);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+
+    .back-link:hover {
+        color: var(--gold-accent);
+        text-decoration: none;
+    }
+
+    .register-link {
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .register-link a {
+        color: var(--gold-accent);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .register-link a:hover {
+        color: var(--gold-primary);
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .login-card {
+            margin: 0.5rem;
+        }
+
+        .panda-section {
+            padding: 2rem 1rem;
+            min-height: 300px;
+        }
+
+        .form-section {
+            padding: 2rem 1.5rem;
+            min-height: auto;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+        }
+
+        .panda-image {
+            max-height: 250px;
+        }
+
+        .back-link {
+            position: static;
+            display: block;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--gold-primary);
+        }
+    }
+  </style>
+</head>
+<body>
+<!-- Header -->
+<div class="header-section">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      GOLD <span class="gold-text">FITNESS</span>
+    </a>
+  </div>
+</div>
+
+<!-- Back Link -->
+<a href="/login" class="back-link d-none d-md-block">← Volver a selección</a>
+
+<!-- Login Container -->
+<div class="login-container">
+  <div class="container">
+    <!-- Back Link Mobile -->
+    <div class="d-md-none text-center mb-3">
+      <a href="/login" class="back-link">← Volver a selección</a>
+    </div>
+
+    <div class="login-card">
+      <div class="row g-0">
+        <!-- Panda Section -->
+        <div class="col-lg-6">
+          <div class="panda-section">
+            <img src="/imagenes/panda.png" alt="Panda Fitness" class="panda-image">
+          </div>
+        </div>
+
+        <!-- Form Section -->
+        <div class="col-lg-6">
+          <div class="form-section">
+            <h2 class="login-title">LOGIN</h2>
+
+            <!-- Mensajes de alerta -->
+            <div th:if="${mensaje}" class="alert alert-danger alert-custom">
+              <span th:text="${mensaje}"></span>
+            </div>
+
+            <form th:action="@{/login}" method="post">
+              <!-- DNI -->
+              <div class="mb-3">
+                <label for="dni" class="form-label">DNI</label>
+                <input type="text" class="form-control" id="dni" name="dni"
+                       placeholder="Usuario" maxlength="8" pattern="[0-9]{8}" required>
+              </div>
+
+              <!-- Contraseña -->
+              <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password"
+                       placeholder="******************" required>
+              </div>
+
+              <!-- Olvidaste tu contraseña -->
+              <a href="#" class="forgot-password">Olvidaste tu contraseña</a>
+
+              <!-- Botón Acceder -->
+              <button type="submit" class="btn btn-login">Acceder</button>
+            </form>
+
+            <!-- Link a registro -->
+            <div class="register-link">
+              <p>¿No tienes cuenta? <a href="/registro">Regístrate aquí</a></p>
+            </div>
+
+            <!-- Información de contacto -->
+            <div class="contact-info">
+              GoldFitness@gmail.com
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Validación en tiempo real del DNI
+  document.getElementById('dni').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '');
+  });
+
+  // Prevenir el enlace de "Olvidaste tu contraseña" por ahora
+  document.querySelector('.forgot-password').addEventListener('click', function(e) {
+      e.preventDefault();
+      alert('Funcionalidad en desarrollo. Contacta al administrador.');
+  });
+</script>
+</body>
+</html>
