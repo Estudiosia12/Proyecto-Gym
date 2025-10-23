@@ -1,98 +1,216 @@
 package com.example.ProyectoGym.Services;
+
 import com.example.ProyectoGym.Model.Miembro;
+import com.example.ProyectoGym.Model.Plan;
 import com.example.ProyectoGym.Repository.MiembroRepository;
+import com.example.ProyectoGym.Repository.PlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class MiembroService {
+
     @Autowired
     private MiembroRepository miembroRepository;
 
-    //Para registrar un nuevo miembro
-    public String registrarMiembro(String nombre, String email, String password,
-                                   String dni, String telefono, LocalDate fechaNacimiento, String plan) {
+    @Autowired
+    private PlanRepository planRepository;
 
-        if (miembroRepository.existsByDni(dni)) {
-            return "ERROR: El DNI ya está registrado";
-        }
+    // Registrar nuevo miembro
+    public String registrarMiembro(String nombre, String email, String password, String dni,
+                                   String telefono, LocalDate fechaNacimiento, String nombrePlan) {
 
-        if (miembroRepository.existsByEmail(email)) {
+        // Validar si el email ya existe
+        if (miembroRepository.findByEmail(email).isPresent()) {
             return "ERROR: El email ya está registrado";
         }
 
-        if (nombre == null || nombre.trim().isEmpty()) {
-            return "ERROR: El nombre es obligatorio";
+        // Validar si el DNI ya existe
+        if (miembroRepository.findByDni(dni).isPresent()) {
+            return "ERROR: El DNI ya está registrado";
         }
 
-        if (dni == null || dni.length() != 8) {
-            return "ERROR: El DNI debe tener 8 dígitos";
+        // Normalizar el nombre del plan
+        String nombrePlanNormalizado = nombrePlan
+                .replace("PLAN ", "")           // Quitar "PLAN "
+                .replace("BÁSICO", "Basico")    // Convertir BÁSICO a Basico
+                .replace("BASICO", "Basico")    // Convertir BASICO a Basico
+                .replace("PREMIUM", "Premium")  // Convertir PREMIUM a Premium
+                .trim();
+
+        // Buscar el plan correspondiente
+        Plan plan = planRepository.findByNombre(nombrePlanNormalizado).orElse(null);
+
+        // Si no lo encuentra, intentar con capitalización estándar
+        if (plan == null && nombrePlanNormalizado.length() > 0) {
+            // Convertir a formato: Primera letra mayúscula, resto minúsculas
+            String nombreCapitalizado = nombrePlanNormalizado.substring(0, 1).toUpperCase() +
+                    nombrePlanNormalizado.substring(1).toLowerCase();
+            plan = planRepository.findByNombre(nombreCapitalizado).orElse(null);
         }
 
-        if (password == null || password.length() < 6) {
-            return "ERROR: La contraseña debe tener al menos 6 caracteres";
+        if (plan == null) {
+            return "ERROR: Plan no encontrado. Recibido: '" + nombrePlan + "', Buscado: '" + nombrePlanNormalizado + "'";
         }
 
-        Miembro nuevoMiembro = new Miembro(nombre, email, password, dni, telefono, fechaNacimiento, plan);
+        // Crear miembro con todos los datos
+        Miembro miembro = new Miembro(nombre, email, password, dni, telefono, fechaNacimiento, nombrePlanNormalizado);
 
-        try {
-            miembroRepository.save(nuevoMiembro);
-            return "SUCCESS: Miembro registrado exitosamente";
-        } catch (Exception e) {
-            return "ERROR: No se pudo registrar el miembro";
-        }
+        // Asignar el plan  antes de guardar
+        miembro.setPlanDetalle(plan);
+        miembro.setPlan(nombrePlanNormalizado); // Guardar nombre normalizado
+
+        // Establecer fecha de vencimiento
+        miembro.setFechaVencimiento(LocalDate.now().plusMonths(1));
+
+        // GUARDAR
+        miembroRepository.save(miembro);
+
+        return "SUCCESS: Registro exitoso. Plan: " + plan.getNombre() + " - Precio: S/ " + plan.getPrecio();
     }
 
-    // Para el Login
+    // Autenticar miembro
     public Miembro autenticarMiembro(String dni, String password) {
+        return miembroRepository.findByDni(dni)
+                .filter(m -> m.getPassword().equals(password))
+                .orElse(null);
+    }
 
-        if (dni == null || dni.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            return null;
+    // Obtener miembro por email
+    public Miembro obtenerMiembroPorEmail(String email) {
+        return miembroRepository.findByEmail(email).orElse(null);
+    }
+
+    // Obtener miembro por DNI
+    public Miembro obtenerMiembroPorDni(String dni) {
+        return miembroRepository.findByDni(dni).orElse(null);
+    }
+
+    // Obtener miembro por ID
+    public Miembro obtenerMiembroPorId(Long id) {
+        return miembroRepository.findById(id).orElse(null);
+    }
+
+    // Obtener todos los miembros
+    public List<Miembro> obtenerTodosLosMiembros() {
+        return miembroRepository.findAll();
+    }
+
+    // Obtener miembros activos
+    public List<Miembro> obtenerMiembrosActivos() {
+        return miembroRepository.findMiembrosActivos();
+    }
+
+    // Obtener miembros por plan
+    public List<Miembro> obtenerMiembrosPorPlan(String plan) {
+        return miembroRepository.findByPlan(plan);
+    }
+
+    // Contar miembros activos
+    public long contarMiembrosActivos() {
+        return miembroRepository.findMiembrosActivos().size();
+    }
+
+    // Contar total de miembros
+    public long contarTotalMiembros() {
+        return miembroRepository.count();
+    }
+
+    // Renovar membresía de un miembro
+    public String renovarMembresia(Long miembroId, int meses) {
+        Miembro miembro = miembroRepository.findById(miembroId).orElse(null);
+
+        if (miembro == null) {
+            return "ERROR: Miembro no encontrado";
         }
 
-        Optional<Miembro> miembroOpt = miembroRepository.findByDniAndPassword(dni, password);
+        miembro.renovarMembresia(meses);
+        miembroRepository.save(miembro);
 
-        if (miembroOpt.isPresent()) {
-            Miembro miembro = miembroOpt.get();
-            if (miembro.getActivo()) {
-                return miembro;
+        return "SUCCESS: Membresía renovada por " + meses + " mes(es)";
+    }
+
+    // Verificar y actualizar estados de membresías vencidas
+    public void verificarMembresiasVencidas() {
+        List<Miembro> miembros = miembroRepository.findAll();
+
+        for (Miembro miembro : miembros) {
+            if (miembro.estaVencida() && miembro.getActivo()) {
+                miembro.setActivo(false);
+                miembroRepository.save(miembro);
             }
         }
-
-        return null;
     }
 
-    // Busca un miembro por su DNI
-    public Miembro buscarPorDni(String dni) {
-        Optional<Miembro> miembroOpt = miembroRepository.findByDni(dni);
-        return miembroOpt.orElse(null);
-    }
+    // Cambiar estado de miembro
+    public String cambiarEstadoMiembro(Long miembroId, Boolean activo) {
+        Miembro miembro = miembroRepository.findById(miembroId).orElse(null);
 
-    // Obtenemos informacion de la membresia
-    public String obtenerEstadoMembresia(Long idMiembro) {
-        Optional<Miembro> miembroOpt = miembroRepository.findById(idMiembro);
-        if (miembroOpt.isPresent()) {
-            Miembro miembro = miembroOpt.get();
-            return miembro.getActivo() ? "ACTIVO" : "INACTIVO";
+        if (miembro == null) {
+            return "ERROR: Miembro no encontrado";
         }
-        return "NO ENCONTRADO";
+
+        miembro.setActivo(activo);
+        miembroRepository.save(miembro);
+
+        return "SUCCESS: Estado actualizado";
     }
 
-    // Cuenta la cantidad de miembros por plan
-    public Long contarMiembrosPorPlan(String plan) {
-        return miembroRepository.countByPlan(plan);
+    // Actualizar plan de miembro
+    public String actualizarPlanMiembro(Long miembroId, String nombrePlan) {
+        Miembro miembro = miembroRepository.findById(miembroId).orElse(null);
+
+        if (miembro == null) {
+            return "ERROR: Miembro no encontrado";
+        }
+
+        Plan plan = planRepository.findByNombre(nombrePlan).orElse(null);
+
+        if (plan == null) {
+            return "ERROR: Plan no encontrado";
+        }
+
+        miembro.setPlan(nombrePlan);
+        miembro.setPlanDetalle(plan);
+        miembroRepository.save(miembro);
+
+        return "SUCCESS: Plan actualizado";
     }
 
-    // Permite validar si un dni ya existe (útil para AJAX)
-    public boolean existeDni(String dni) {
-        return miembroRepository.existsByDni(dni);
+    // Actualizar datos del miembro
+    public String actualizarMiembro(Long id, String nombre, String email, String telefono) {
+        Miembro miembro = miembroRepository.findById(id).orElse(null);
+
+        if (miembro == null) {
+            return "ERROR: Miembro no encontrado";
+        }
+
+        // Verificar si el email ya existe en otro miembro
+        Miembro miembroConEmail = miembroRepository.findByEmail(email).orElse(null);
+        if (miembroConEmail != null && !miembroConEmail.getId().equals(id)) {
+            return "ERROR: El email ya está en uso";
+        }
+
+        miembro.setNombre(nombre);
+        miembro.setEmail(email);
+        miembro.setTelefono(telefono);
+
+        miembroRepository.save(miembro);
+        return "SUCCESS: Datos actualizados";
     }
 
-    // Metodo para validar si un email existe
-    public boolean existeEmail(String email) {
-        return miembroRepository.existsByEmail(email);
+    // Obtener miembros con membresía por vencer
+    public List<Miembro> obtenerMiembrosProximosAVencer() {
+        LocalDate hoy = LocalDate.now();
+        LocalDate dentroDe7Dias = hoy.plusDays(7);
+        return miembroRepository.findByFechaVencimientoBetween(hoy, dentroDe7Dias);
+    }
+
+    // Contar miembros por plan
+    public long contarMiembrosPorPlan(String plan) {
+        return miembroRepository.findByPlan(plan).size();
     }
 }
