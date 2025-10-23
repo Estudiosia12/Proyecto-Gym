@@ -101,6 +101,7 @@ public class Miembro {
     public void setPlan(String plan) {
         this.plan = plan;
     }
+    //git status
 
     public Boolean getActivo() {
         return activo;
