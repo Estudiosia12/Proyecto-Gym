@@ -7,12 +7,30 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Repositorio para la gestión de ejercicios dentro de rutinas predefinidas.
+ * Permite consultar y organizar los ejercicios que componen cada rutina.
+ *
+ * @author Juan Quispe, Pedro Perez
+ * @since 2025
+ */
 @Repository
 public interface EjercicioRutinaRepository extends JpaRepository<EjercicioRutina, Long> {
 
-    // Buscar ejercicios de una rutina ordenados
+    /**
+     * Obtiene todos los ejercicios de una rutina predefinida ordenados por su secuencia.
+     * Los ejercicios se retornan en el orden en que deben ejecutarse.
+     *
+     * @param rutinaPredefinida La rutina de la cual obtener los ejercicios
+     * @return Lista de ejercicios ordenados ascendentemente por el campo orden
+     */
     List<EjercicioRutina> findByRutinaPredefinidaOrderByOrdenAsc(RutinaPredefinida rutinaPredefinida);
 
-    // Contar ejercicios de una rutina
+    /**
+     * Cuenta el número total de ejercicios que contiene una rutina predefinida.
+     *
+     * @param rutinaPredefinida La rutina de la cual contar los ejercicios
+     * @return Cantidad de ejercicios en la rutina
+     */
     Long countByRutinaPredefinida(RutinaPredefinida rutinaPredefinida);
 }
