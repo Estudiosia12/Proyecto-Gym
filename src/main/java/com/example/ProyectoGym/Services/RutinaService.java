@@ -9,6 +9,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Servicio para la gestion de rutinas de entrenamiento y asignaciones a miembros.
+ * Proporciona funcionalidades de asignacion de rutinas, seguimiento de sesiones,
+ * calculo de estadisticas de progreso y recomendaciones personalizadas.
+ *
+ * @author Juan Quispe, Pedro Perez
+ * @since 2025
+ */
 @Service
 public class RutinaService {
 
@@ -24,26 +32,42 @@ public class RutinaService {
     @Autowired
     private SesionCompletadaRepository sesionCompletadaRepository;
 
-
-    // Verificar si el miembro ya tiene una rutina asignada
+    /**
+     * Verifica si un miembro tiene una rutina activa asignada.
+     *
+     * @param miembro Miembro a verificar
+     * @return true si tiene rutina activa, false en caso contrario
+     */
     public boolean tieneRutinaAsignada(Miembro miembro) {
         return asignacionRutinaRepository.existsByMiembroAndActivoTrue(miembro);
     }
 
-    // Obtener rutina asignada del miembro
+    /**
+     * Obtiene la rutina actualmente asignada a un miembro.
+     *
+     * @param miembro Miembro del cual obtener la rutina
+     * @return La asignacion de rutina activa o null si no tiene ninguna
+     */
     public AsignacionRutina obtenerRutinaAsignada(Miembro miembro) {
         Optional<AsignacionRutina> asignacion = asignacionRutinaRepository.findByMiembroAndActivoTrue(miembro);
         return asignacion.orElse(null);
     }
 
-    // Asignar rutina a un miembro según objetivo y nivel seleccionado
+    /**
+     * Asigna una rutina predefinida a un miembro segun objetivo y nivel seleccionado.
+     * Valida que el miembro no tenga una rutina activa previamente y que exista
+     * una rutina predefinida que coincida con los criterios.
+     *
+     * @param miembro Miembro al cual asignar la rutina
+     * @param objetivo Objetivo de entrenamiento ("Bajar Peso", "Tonificar", "Aumentar Masa Muscular")
+     * @param nivel Nivel de dificultad ("Principiante", "Intermedio", "Avanzado")
+     * @return Mensaje de exito o error segun corresponda
+     */
     public String asignarRutina(Miembro miembro, String objetivo, String nivel) {
-        // Verificar si ya tiene una rutina asignada
         if (tieneRutinaAsignada(miembro)) {
             return "ERROR: Ya tienes una rutina asignada";
         }
 
-        // Buscar la rutina predefinida según objetivo y nivel
         Optional<RutinaPredefinida> rutinaOpt = rutinaPredefinidaRepository
                 .findByObjetivoAndNivelAndActivoTrue(objetivo, nivel);
 
@@ -61,30 +85,63 @@ public class RutinaService {
         }
     }
 
-    // Obtener ejercicios de la rutina asignada
+    /**
+     * Obtiene la lista de ejercicios de una rutina predefinida ordenados por secuencia.
+     *
+     * @param rutina Rutina de la cual obtener los ejercicios
+     * @return Lista de ejercicios ordenados por el campo orden
+     */
     public List<EjercicioRutina> obtenerEjerciciosDeRutina(RutinaPredefinida rutina) {
         return ejercicioRutinaRepository.findByRutinaPredefinidaOrderByOrdenAsc(rutina);
     }
 
-    // Obtener estadísticas del miembro
+    /**
+     * Cuenta las sesiones completadas por un miembro en el mes actual.
+     *
+     * @param miembro Miembro del cual contar sesiones
+     * @return Cantidad de sesiones completadas en el mes
+     */
     public Long contarSesionesEsteMes(Miembro miembro) {
         return sesionCompletadaRepository.countSesionesEsteMes(miembro);
     }
 
+    /**
+     * Cuenta el total de sesiones completadas por un miembro desde su registro.
+     *
+     * @param miembro Miembro del cual contar sesiones totales
+     * @return Cantidad total de sesiones completadas
+     */
     public Long contarSesionesTotales(Miembro miembro) {
         return sesionCompletadaRepository.countByMiembro(miembro);
     }
 
+    /**
+     * Obtiene la ultima sesion completada por un miembro.
+     *
+     * @param miembro Miembro del cual obtener la ultima sesion
+     * @return La sesion mas reciente o null si no tiene sesiones
+     */
     public SesionCompletada obtenerUltimaSesion(Miembro miembro) {
         return sesionCompletadaRepository.findFirstByMiembroOrderByFechaCompletadaDesc(miembro);
     }
 
-    // Obtener historial de sesiones
+    /**
+     * Obtiene el historial completo de sesiones de un miembro ordenadas por fecha descendente.
+     *
+     * @param miembro Miembro del cual obtener el historial
+     * @return Lista de sesiones ordenadas de mas reciente a mas antigua
+     */
     public List<SesionCompletada> obtenerHistorialSesiones(Miembro miembro) {
         return sesionCompletadaRepository.findByMiembroOrderByFechaCompletadaDesc(miembro);
     }
 
-    // Calcular porcentaje de progreso (sesiones este mes vs frecuencia semanal)
+    /**
+     * Calcula el porcentaje de progreso del miembro en el mes actual.
+     * Compara las sesiones completadas contra la meta mensual basada en frecuencia semanal.
+     *
+     * @param miembro Miembro del cual calcular el progreso
+     * @return Porcentaje de cumplimiento (0-100), 0 si no tiene rutina asignada
+     */
     public int calcularPorcentajeProgreso(Miembro miembro) {
         AsignacionRutina asignacion = obtenerRutinaAsignada(miembro);
         if (asignacion == null) {
@@ -98,7 +155,6 @@ public class RutinaService {
             return 0;
         }
 
-        // Meta mensual = frecuencia semanal * 4 semanas
         int metaMensual = frecuenciaSemanal * 4;
 
         if (metaMensual == 0) {
@@ -106,10 +162,15 @@ public class RutinaService {
         }
 
         int porcentaje = (int) ((sesionesEsteMes * 100.0) / metaMensual);
-        return Math.min(porcentaje, 100); // No más de 100%
+        return Math.min(porcentaje, 100);
     }
 
-    // Calcular sesiones restantes para completar la meta mensual
+    /**
+     * Calcula cuantas sesiones faltan para completar la meta mensual.
+     *
+     * @param miembro Miembro del cual calcular sesiones restantes
+     * @return Cantidad de sesiones faltantes, 0 si ya completo la meta o no tiene rutina
+     */
     public int calcularSesionesRestantes(Miembro miembro) {
         AsignacionRutina asignacion = obtenerRutinaAsignada(miembro);
         if (asignacion == null) {
@@ -126,11 +187,17 @@ public class RutinaService {
         int metaMensual = frecuenciaSemanal * 4;
         int restantes = metaMensual - sesionesEsteMes.intValue();
 
-        return Math.max(restantes, 0); // No puede ser negativo
+        return Math.max(restantes, 0);
     }
 
-
-    // Registrar sesión completada
+    /**
+     * Registra una nueva sesion completada por un miembro.
+     * Valida que el miembro tenga una rutina asignada activa.
+     *
+     * @param miembro Miembro que completo la sesion
+     * @param observaciones Notas u observaciones sobre la sesion
+     * @return Mensaje de exito o error segun corresponda
+     */
     public String registrarSesionCompletada(Miembro miembro, String observaciones) {
         AsignacionRutina asignacion = obtenerRutinaAsignada(miembro);
 
@@ -147,12 +214,26 @@ public class RutinaService {
         }
     }
 
-    // Obtener todas las rutinas predefinidas
+    /**
+     * Obtiene todas las rutinas predefinidas activas disponibles.
+     *
+     * @return Lista de rutinas activas
+     */
     public List<RutinaPredefinida> obtenerTodasLasRutinas() {
         return rutinaPredefinidaRepository.findByActivoTrue();
     }
 
-    // Crear rutina predefinida
+    /**
+     * Crea una nueva rutina predefinida en el sistema.
+     *
+     * @param nombre Nombre de la rutina
+     * @param descripcion Descripcion detallada
+     * @param objetivo Objetivo de la rutina
+     * @param nivel Nivel de dificultad
+     * @param duracion Duracion en semanas
+     * @param frecuenciaSemanal Numero de sesiones por semana
+     * @return Mensaje de exito o error segun corresponda
+     */
     public String crearRutinaPredefinida(String nombre, String descripcion, String objetivo,
                                          String nivel, Integer duracion, Integer frecuenciaSemanal) {
         try {
@@ -165,7 +246,12 @@ public class RutinaService {
         }
     }
 
-    // Cancelar rutina actual
+    /**
+     * Cancela la rutina actualmente asignada a un miembro marcandola como inactiva.
+     *
+     * @param miembro Miembro cuya rutina se cancelara
+     * @return Mensaje de exito o error segun corresponda
+     */
     public String cancelarRutinaActual(Miembro miembro) {
         AsignacionRutina asignacion = obtenerRutinaAsignada(miembro);
 
@@ -181,7 +267,14 @@ public class RutinaService {
             return "ERROR: No se pudo cancelar la rutina";
         }
     }
-    // Calcular porcentaje de asistencia este mes
+
+    /**
+     * Calcula el porcentaje de asistencia del miembro en el mes actual.
+     * Equivalente a calcularPorcentajeProgreso.
+     *
+     * @param miembro Miembro del cual calcular asistencia
+     * @return Porcentaje de asistencia (0-100)
+     */
     public int calcularPorcentajeAsistencia(Miembro miembro) {
         AsignacionRutina asignacion = obtenerRutinaAsignada(miembro);
         if (asignacion == null) {
@@ -205,12 +298,23 @@ public class RutinaService {
         return Math.min(porcentaje, 100);
     }
 
-    // Obtener sesiones del mes anterior
+    /**
+     * Cuenta las sesiones completadas por un miembro en el mes anterior.
+     *
+     * @param miembro Miembro del cual contar sesiones
+     * @return Cantidad de sesiones del mes anterior
+     */
     public Long contarSesionesMesAnterior(Miembro miembro) {
         return sesionCompletadaRepository.countSesionesMesAnterior(miembro);
     }
 
-    // Calcular diferencia con mes anterior
+    /**
+     * Calcula la diferencia porcentual de sesiones entre el mes actual y el anterior.
+     * Util para medir mejora o disminucion en la constancia del miembro.
+     *
+     * @param miembro Miembro del cual calcular diferencia
+     * @return Porcentaje de diferencia (positivo si mejoro, negativo si disminuyo)
+     */
     public int calcularDiferenciaMesAnterior(Miembro miembro) {
         Long sesionesEsteMes = contarSesionesEsteMes(miembro);
         Long sesionesMesAnterior = contarSesionesMesAnterior(miembro);
@@ -223,7 +327,13 @@ public class RutinaService {
         return (int) ((diferencia * 100.0) / sesionesMesAnterior);
     }
 
-    // Calcular próxima sesión recomendada
+    /**
+     * Calcula la proxima fecha recomendada para entrenar basandose en la frecuencia semanal.
+     * Toma la fecha de la ultima sesion y suma los dias entre sesiones.
+     *
+     * @param miembro Miembro del cual calcular proxima sesion
+     * @return Fecha recomendada para la proxima sesion
+     */
     public LocalDate calcularProximaSesion(Miembro miembro) {
         SesionCompletada ultimaSesion = obtenerUltimaSesion(miembro);
         AsignacionRutina asignacion = obtenerRutinaAsignada(miembro);
@@ -237,13 +347,18 @@ public class RutinaService {
             return LocalDate.now();
         }
 
-        // Calcular días entre sesiones
         int diasEntreSesiones = 7 / frecuenciaSemanal;
 
         return ultimaSesion.getFechaCompletada().plusDays(diasEntreSesiones);
     }
 
-    // Obtener últimas N sesiones
+    /**
+     * Obtiene las ultimas N sesiones completadas por un miembro.
+     *
+     * @param miembro Miembro del cual obtener sesiones
+     * @param limite Cantidad maxima de sesiones a retornar
+     * @return Lista de las ultimas sesiones limitada al numero especificado
+     */
     public List<SesionCompletada> obtenerUltimasSesiones(Miembro miembro, int limite) {
         List<SesionCompletada> todas = obtenerHistorialSesiones(miembro);
         if (todas.size() <= limite) {

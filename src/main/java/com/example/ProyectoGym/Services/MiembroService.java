@@ -10,6 +10,14 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Servicio para la gestion de miembros del gimnasio.
+ * Proporciona funcionalidades de registro, autenticacion, actualizacion de datos,
+ * gestion de membresias y consultas de miembros.
+ *
+ * @author Juan Quispe, Pedro Perez
+ * @since 2025
+ */
 @Service
 public class MiembroService {
 
@@ -19,34 +27,41 @@ public class MiembroService {
     @Autowired
     private PlanRepository planRepository;
 
-    // Registrar nuevo miembro
+    /**
+     * Registra un nuevo miembro en el sistema.
+     * Valida que el email y DNI no existan previamente, normaliza el nombre del plan,
+     * busca el plan correspondiente y establece la fecha de vencimiento inicial.
+     *
+     * @param nombre Nombre completo del miembro
+     * @param email Correo electronico unico del miembro
+     * @param password Contrasena de acceso
+     * @param dni Documento Nacional de Identidad unico
+     * @param telefono Numero de telefono de contacto
+     * @param fechaNacimiento Fecha de nacimiento del miembro
+     * @param nombrePlan Nombre del plan de membresia seleccionado
+     * @return Mensaje de exito con detalles del plan o mensaje de error segun corresponda
+     */
     public String registrarMiembro(String nombre, String email, String password, String dni,
                                    String telefono, LocalDate fechaNacimiento, String nombrePlan) {
 
-        // Validar si el email ya existe
         if (miembroRepository.findByEmail(email).isPresent()) {
             return "ERROR: El email ya está registrado";
         }
 
-        // Validar si el DNI ya existe
         if (miembroRepository.findByDni(dni).isPresent()) {
             return "ERROR: El DNI ya está registrado";
         }
 
-        // Normalizar el nombre del plan
         String nombrePlanNormalizado = nombrePlan
-                .replace("PLAN ", "")           // Quitar "PLAN "
-                .replace("BÁSICO", "Basico")    // Convertir BÁSICO a Basico
-                .replace("BASICO", "Basico")    // Convertir BASICO a Basico
-                .replace("PREMIUM", "Premium")  // Convertir PREMIUM a Premium
+                .replace("PLAN ", "")
+                .replace("BÁSICO", "Basico")
+                .replace("BASICO", "Basico")
+                .replace("PREMIUM", "Premium")
                 .trim();
 
-        // Buscar el plan correspondiente
         Plan plan = planRepository.findByNombre(nombrePlanNormalizado).orElse(null);
 
-        // Si no lo encuentra, intentar con capitalización estándar
         if (plan == null && nombrePlanNormalizado.length() > 0) {
-            // Convertir a formato: Primera letra mayúscula, resto minúsculas
             String nombreCapitalizado = nombrePlanNormalizado.substring(0, 1).toUpperCase() +
                     nombrePlanNormalizado.substring(1).toLowerCase();
             plan = planRepository.findByNombre(nombreCapitalizado).orElse(null);
@@ -56,70 +71,115 @@ public class MiembroService {
             return "ERROR: Plan no encontrado. Recibido: '" + nombrePlan + "', Buscado: '" + nombrePlanNormalizado + "'";
         }
 
-        // Crear miembro con todos los datos
         Miembro miembro = new Miembro(nombre, email, password, dni, telefono, fechaNacimiento, nombrePlanNormalizado);
 
-        // Asignar el plan  antes de guardar
         miembro.setPlanDetalle(plan);
-        miembro.setPlan(nombrePlanNormalizado); // Guardar nombre normalizado
-
-        // Establecer fecha de vencimiento
+        miembro.setPlan(nombrePlanNormalizado);
         miembro.setFechaVencimiento(LocalDate.now().plusMonths(1));
 
-        // GUARDAR
         miembroRepository.save(miembro);
 
         return "SUCCESS: Registro exitoso. Plan: " + plan.getNombre() + " - Precio: S/ " + plan.getPrecio();
     }
 
-    // Autenticar miembro
+    /**
+     * Autentica un miembro verificando sus credenciales.
+     * Valida que el DNI exista y la contrasena coincida.
+     *
+     * @param dni DNI del miembro
+     * @param password Contrasena del miembro
+     * @return El miembro autenticado si las credenciales son correctas, null en caso contrario
+     */
     public Miembro autenticarMiembro(String dni, String password) {
         return miembroRepository.findByDni(dni)
                 .filter(m -> m.getPassword().equals(password))
                 .orElse(null);
     }
 
-    // Obtener miembro por email
+    /**
+     * Busca un miembro por su correo electronico.
+     *
+     * @param email Correo electronico a buscar
+     * @return El miembro encontrado o null si no existe
+     */
     public Miembro obtenerMiembroPorEmail(String email) {
         return miembroRepository.findByEmail(email).orElse(null);
     }
 
-    // Obtener miembro por DNI
+    /**
+     * Busca un miembro por su numero de DNI.
+     *
+     * @param dni DNI a buscar
+     * @return El miembro encontrado o null si no existe
+     */
     public Miembro obtenerMiembroPorDni(String dni) {
         return miembroRepository.findByDni(dni).orElse(null);
     }
 
-    // Obtener miembro por ID
+    /**
+     * Obtiene un miembro especifico por su ID.
+     *
+     * @param id ID del miembro a buscar
+     * @return El miembro encontrado o null si no existe
+     */
     public Miembro obtenerMiembroPorId(Long id) {
         return miembroRepository.findById(id).orElse(null);
     }
 
-    // Obtener todos los miembros
+    /**
+     * Obtiene todos los miembros registrados en el sistema.
+     *
+     * @return Lista completa de miembros (activos e inactivos)
+     */
     public List<Miembro> obtenerTodosLosMiembros() {
         return miembroRepository.findAll();
     }
 
-    // Obtener miembros activos
+    /**
+     * Obtiene todos los miembros con estado activo.
+     *
+     * @return Lista de miembros activos
+     */
     public List<Miembro> obtenerMiembrosActivos() {
         return miembroRepository.findMiembrosActivos();
     }
 
-    // Obtener miembros por plan
+    /**
+     * Obtiene miembros filtrados por tipo de plan de membresia.
+     *
+     * @param plan Nombre del plan a filtrar
+     * @return Lista de miembros con el plan especificado
+     */
     public List<Miembro> obtenerMiembrosPorPlan(String plan) {
         return miembroRepository.findByPlan(plan);
     }
 
-    // Contar miembros activos
+    /**
+     * Cuenta el numero de miembros con estado activo.
+     *
+     * @return Cantidad de miembros activos
+     */
     public long contarMiembrosActivos() {
         return miembroRepository.findMiembrosActivos().size();
     }
 
-    // Contar total de miembros
+    /**
+     * Cuenta el numero total de miembros registrados.
+     *
+     * @return Cantidad total de miembros
+     */
     public long contarTotalMiembros() {
         return miembroRepository.count();
     }
 
-    // Renovar membresía de un miembro
+    /**
+     * Renueva la membresia de un miembro extendiendola por un numero de meses.
+     * Actualiza automaticamente la fecha de vencimiento.
+     *
+     * @param miembroId ID del miembro a renovar
+     * @param meses Cantidad de meses a extender la membresia
+     * @return Mensaje de exito o error segun corresponda
+     */
     public String renovarMembresia(Long miembroId, int meses) {
         Miembro miembro = miembroRepository.findById(miembroId).orElse(null);
 
@@ -133,7 +193,11 @@ public class MiembroService {
         return "SUCCESS: Membresía renovada por " + meses + " mes(es)";
     }
 
-    // Verificar y actualizar estados de membresías vencidas
+    /**
+     * Verifica y actualiza automaticamente el estado de membresias vencidas.
+     * Desactiva los miembros cuya fecha de vencimiento haya expirado.
+     * Metodo util para ejecutar en tareas programadas.
+     */
     public void verificarMembresiasVencidas() {
         List<Miembro> miembros = miembroRepository.findAll();
 
@@ -145,7 +209,13 @@ public class MiembroService {
         }
     }
 
-    // Cambiar estado de miembro
+    /**
+     * Cambia el estado de activacion de un miembro.
+     *
+     * @param miembroId ID del miembro
+     * @param activo Nuevo estado (true para activo, false para inactivo)
+     * @return Mensaje de exito o error segun corresponda
+     */
     public String cambiarEstadoMiembro(Long miembroId, Boolean activo) {
         Miembro miembro = miembroRepository.findById(miembroId).orElse(null);
 
@@ -159,7 +229,14 @@ public class MiembroService {
         return "SUCCESS: Estado actualizado";
     }
 
-    // Actualizar plan de miembro
+    /**
+     * Actualiza el plan de membresia de un miembro.
+     * Cambia tanto el nombre del plan como el detalle asociado.
+     *
+     * @param miembroId ID del miembro
+     * @param nombrePlan Nombre del nuevo plan
+     * @return Mensaje de exito o error segun corresponda
+     */
     public String actualizarPlanMiembro(Long miembroId, String nombrePlan) {
         Miembro miembro = miembroRepository.findById(miembroId).orElse(null);
 
@@ -180,7 +257,16 @@ public class MiembroService {
         return "SUCCESS: Plan actualizado";
     }
 
-    // Actualizar datos del miembro
+    /**
+     * Actualiza los datos personales de un miembro.
+     * Valida que el nuevo email no este en uso por otro miembro.
+     *
+     * @param id ID del miembro a actualizar
+     * @param nombre Nuevo nombre
+     * @param email Nuevo email
+     * @param telefono Nuevo telefono
+     * @return Mensaje de exito o error segun corresponda
+     */
     public String actualizarMiembro(Long id, String nombre, String email, String telefono) {
         Miembro miembro = miembroRepository.findById(id).orElse(null);
 
@@ -188,7 +274,6 @@ public class MiembroService {
             return "ERROR: Miembro no encontrado";
         }
 
-        // Verificar si el email ya existe en otro miembro
         Miembro miembroConEmail = miembroRepository.findByEmail(email).orElse(null);
         if (miembroConEmail != null && !miembroConEmail.getId().equals(id)) {
             return "ERROR: El email ya está en uso";
@@ -202,14 +287,24 @@ public class MiembroService {
         return "SUCCESS: Datos actualizados";
     }
 
-    // Obtener miembros con membresía por vencer
+    /**
+     * Obtiene la lista de miembros cuya membresia vence en los proximos 7 dias.
+     * Util para enviar recordatorios de renovacion.
+     *
+     * @return Lista de miembros proximos a vencer
+     */
     public List<Miembro> obtenerMiembrosProximosAVencer() {
         LocalDate hoy = LocalDate.now();
         LocalDate dentroDe7Dias = hoy.plusDays(7);
         return miembroRepository.findByFechaVencimientoBetween(hoy, dentroDe7Dias);
     }
 
-    // Contar miembros por plan
+    /**
+     * Cuenta la cantidad de miembros que tienen un plan especifico.
+     *
+     * @param plan Nombre del plan a contar
+     * @return Cantidad de miembros con el plan especificado
+     */
     public long contarMiembrosPorPlan(String plan) {
         return miembroRepository.findByPlan(plan).size();
     }

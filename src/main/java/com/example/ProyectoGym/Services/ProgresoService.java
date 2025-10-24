@@ -8,6 +8,14 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
 
+/**
+ * Servicio para la gestion del progreso de entrenamiento de los miembros.
+ * Proporciona funcionalidades de seguimiento de rutinas, registro de sesiones completadas,
+ * estadisticas de progreso y visualizacion del cumplimiento de objetivos.
+ *
+ * @author Juan Quispe, Pedro Perez
+ * @since 2025
+ */
 @Service
 public class ProgresoService {
 
@@ -20,7 +28,13 @@ public class ProgresoService {
     @Autowired
     private SesionCompletadaRepository sesionCompletadaRepository;
 
-
+    /**
+     * Obtiene la lista de miembros activos que tienen rutinas asignadas con su progreso mensual.
+     * Incluye informacion de sesiones completadas, meta mensual y porcentaje de cumplimiento.
+     * Los resultados se ordenan por porcentaje de progreso descendente.
+     *
+     * @return Lista de mapas con informacion de cada miembro y su progreso de entrenamiento
+     */
     public List<Map<String, Object>> obtenerMiembrosConRutinas() {
         List<Miembro> miembrosActivos = miembroRepository.findMiembrosActivos();
 
@@ -44,14 +58,10 @@ public class ProgresoService {
                         info.put("nivel", asignacion.getNivelSeleccionado());
                         info.put("frecuenciaSemanal", rutina.getFrecuenciaSemanal());
 
-                        // Calcular sesiones del mes
                         Long sesionesEsteMes = sesionCompletadaRepository
                                 .countSesionesEsteMes(miembro);
 
-                        // Meta mensual
                         int metaMensual = rutina.getFrecuenciaSemanal() * 4;
-
-                        // Calcular porcentaje
                         int porcentaje = (int) ((sesionesEsteMes * 100.0) / metaMensual);
 
                         info.put("sesionesCompletadas", sesionesEsteMes);
@@ -67,7 +77,14 @@ public class ProgresoService {
                 .toList();
     }
 
-
+    /**
+     * Obtiene el detalle completo del progreso de un miembro especifico.
+     * Incluye informacion del miembro, rutina asignada, estadisticas de sesiones,
+     * porcentaje de progreso mensual y historial de las ultimas 10 sesiones.
+     *
+     * @param miembroId ID del miembro a consultar
+     * @return Mapa con informacion detallada del progreso, o null si el miembro no existe o no tiene rutina
+     */
     public Map<String, Object> obtenerDetalleProgreso(Long miembroId) {
         Miembro miembro = miembroRepository.findById(miembroId).orElse(null);
 
@@ -87,13 +104,11 @@ public class ProgresoService {
 
         Map<String, Object> detalle = new HashMap<>();
 
-        // Información del miembro
         detalle.put("miembroId", miembro.getId());
         detalle.put("miembroNombre", miembro.getNombre());
         detalle.put("miembroDni", miembro.getDni());
         detalle.put("miembroEmail", miembro.getEmail());
 
-        // Información de la rutina
         detalle.put("rutinaNombre", rutina.getNombre());
         detalle.put("rutinaDescripcion", rutina.getDescripcion());
         detalle.put("objetivo", asignacion.getObjetivoSeleccionado());
@@ -102,7 +117,6 @@ public class ProgresoService {
         detalle.put("frecuenciaSemanal", rutina.getFrecuenciaSemanal());
         detalle.put("fechaAsignacion", asignacion.getFechaAsignacion());
 
-        // Estadísticas de progreso
         Long sesionesEsteMes = sesionCompletadaRepository.countSesionesEsteMes(miembro);
         Long totalSesiones = sesionCompletadaRepository.countByMiembro(miembro);
         int metaMensual = rutina.getFrecuenciaSemanal() * 4;
@@ -114,7 +128,6 @@ public class ProgresoService {
         detalle.put("porcentajeProgreso", Math.min(porcentaje, 100));
         detalle.put("sesionesFaltantes", Math.max(0, metaMensual - sesionesEsteMes));
 
-        // Última sesión
         SesionCompletada ultimaSesion = sesionCompletadaRepository
                 .findFirstByMiembroOrderByFechaCompletadaDesc(miembro);
 
@@ -124,7 +137,6 @@ public class ProgresoService {
             detalle.put("ultimaSesion", null);
         }
 
-        // Historial de sesiones
         List<SesionCompletada> historial = sesionCompletadaRepository
                 .findByMiembroOrderByFechaCompletadaDesc(miembro);
 
@@ -144,7 +156,15 @@ public class ProgresoService {
         return detalle;
     }
 
-
+    /**
+     * Registra la completacion de una sesion de entrenamiento para un miembro.
+     * Valida que el miembro exista y tenga una rutina asignada activa.
+     * Siempre crea una nueva sesion sin importar si ya hay una registrada en el dia.
+     *
+     * @param miembroId ID del miembro que completo la sesion
+     * @param observaciones Notas u observaciones sobre la sesion (opcional)
+     * @return Mensaje de exito o error segun corresponda
+     */
     public String marcarSesionCompletada(Long miembroId, String observaciones) {
         Miembro miembro = miembroRepository.findById(miembroId).orElse(null);
 
@@ -162,7 +182,6 @@ public class ProgresoService {
         try {
             AsignacionRutina asignacion = asignacionOpt.get();
 
-            // ✅ SIEMPRE crea una nueva sesión, sin importar si ya hay una hoy
             SesionCompletada sesion = new SesionCompletada(asignacion, miembro, observaciones);
             sesionCompletadaRepository.save(sesion);
 
@@ -172,11 +191,15 @@ public class ProgresoService {
         }
     }
 
-
+    /**
+     * Obtiene estadisticas generales del sistema de seguimiento de progreso.
+     * Incluye cantidad de miembros con rutinas asignadas, sesiones del dia y del mes.
+     *
+     * @return Mapa con estadisticas generales del gimnasio
+     */
     public Map<String, Object> obtenerEstadisticasGenerales() {
         Map<String, Object> stats = new HashMap<>();
 
-        // Total de miembros con rutinas asignadas
         List<Miembro> miembrosActivos = miembroRepository.findMiembrosActivos();
         long miembrosConRutina = miembrosActivos.stream()
                 .filter(m -> asignacionRutinaRepository.existsByMiembroAndActivoTrue(m))
@@ -184,12 +207,10 @@ public class ProgresoService {
 
         stats.put("miembrosConRutina", miembrosConRutina);
 
-        // Sesiones completadas hoy
         LocalDate hoy = LocalDate.now();
         long sesionesHoy = sesionCompletadaRepository.countByFechaCompletada(hoy);
         stats.put("sesionesHoy", sesionesHoy);
 
-        // Sesiones este mes
         LocalDate inicioMes = hoy.withDayOfMonth(1);
         LocalDate finMes = hoy.withDayOfMonth(hoy.lengthOfMonth());
         long sesionesMes = sesionCompletadaRepository
@@ -199,7 +220,13 @@ public class ProgresoService {
         return stats;
     }
 
-
+    /**
+     * Elimina una sesion completada del sistema.
+     * Util para corregir registros erroneos.
+     *
+     * @param sesionId ID de la sesion a eliminar
+     * @return Mensaje de exito o error segun corresponda
+     */
     public String eliminarSesion(Long sesionId) {
         Optional<SesionCompletada> sesionOpt = sesionCompletadaRepository.findById(sesionId);
 
