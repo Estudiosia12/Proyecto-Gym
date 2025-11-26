@@ -53,6 +53,7 @@ public class Miembro {
         this.activo = true;
     }
 
+
     public Miembro(String nombre, String email, String password, String dni, String telefono,
                    LocalDate fecha_nacimiento, String plan) {
         this.nombre = nombre;
