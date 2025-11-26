@@ -15,6 +15,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
 
+/**
+ * Controlador principal para la gestion administrativa del gimnasio.
+ * Maneja autenticacion de administradores, dashboard con metricas,
+ * y operaciones CRUD sobre miembros y planes de membresia.
+ *
+ * @author Juan Quispe, Pedro Perez
+ * @since 2025
+ */
 @Controller
 @RequestMapping("/admin")
 public class AdministradorController {
@@ -31,14 +39,26 @@ public class AdministradorController {
     @Autowired
     private PlanService planService;
 
-
-    // Mostrar formulario de login
+    /**
+     * Muestra el formulario de inicio de sesion para administradores.
+     *
+     * @return Vista del formulario de login
+     */
     @GetMapping("/login")
     public String mostrarLogin() {
         return "admin-login";
     }
 
-    // Procesar login
+    /**
+     * Procesa el inicio de sesion del administrador.
+     * Valida credenciales y crea sesion si son correctas.
+     *
+     * @param usuario Nombre de usuario del administrador
+     * @param password Contrasena del administrador
+     * @param session Sesion HTTP para almacenar datos del administrador autenticado
+     * @param redirectAttributes Atributos para mensajes flash en redirecciones
+     * @return Redireccion al dashboard si autenticacion exitosa, o al login con mensaje de error
+     */
     @PostMapping("/login")
     public String procesarLogin(@RequestParam String usuario,
                                 @RequestParam String password,
@@ -48,7 +68,6 @@ public class AdministradorController {
         Administrador admin = administradorService.autenticarAdministrador(usuario, password);
 
         if (admin != null) {
-            // Guardar admin en sesión
             session.setAttribute("administrador", admin);
             return "redirect:/admin/dashboard";
         } else {
@@ -58,14 +77,26 @@ public class AdministradorController {
         }
     }
 
-    // Cerrar sesión
+    /**
+     * Cierra la sesion del administrador y limpia todos los datos de sesion.
+     *
+     * @param session Sesion HTTP  invalidar
+     * @return Redireccion al formulario de login
+     */
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/admin/login";
     }
 
-    // Dashboard del administrador
+    /**
+     * Muestra el dashboard principal del administrador con metricas y estadisticas.
+     * Incluye miembros activos, asistencias, ingresos, distribucion de planes y resumen de clases.
+     *
+     * @param session Sesion HTTP para validar autenticacion
+     * @param model Modelo para pasar datos a la vista
+     * @return Vista del dashboard o redireccion al login si no hay sesion activa
+     */
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
         Administrador admin = (Administrador) session.getAttribute("administrador");
@@ -74,14 +105,10 @@ public class AdministradorController {
             return "redirect:/admin/login";
         }
 
-        // Obtener todas las métricas del dashboard
         Map<String, Object> metricas = adminService.obtenerMetricasDashboard();
 
-        // Pasar métricas al modelo
         model.addAttribute("administrador", admin);
         model.addAttribute("metricas", metricas);
-
-        // Pasar métricas individuales para fácil acceso en la vista
         model.addAttribute("miembrosActivos", metricas.get("miembrosActivos"));
         model.addAttribute("membresiasActivas", metricas.get("membresiasActivas"));
         model.addAttribute("asistenciasHoy", metricas.get("asistenciasHoy"));
@@ -93,8 +120,13 @@ public class AdministradorController {
         return "dashboard-admin";
     }
 
-
-    // Ver lista de miembros
+    /**
+     * Muestra la lista completa de miembros registrados en el gimnasio.
+     *
+     * @param session Sesion HTTP para validar autenticacion
+     * @param model Modelo para pasar datos a la vista
+     * @return Vista con lista de miembros o redireccion al login
+     */
     @GetMapping("/miembros")
     public String listarMiembros(HttpSession session, Model model) {
         Administrador admin = (Administrador) session.getAttribute("administrador");
@@ -109,7 +141,15 @@ public class AdministradorController {
         return "miembros-admin";
     }
 
-    // Cambiar estado de miembro (Activo/Inactivo)
+    /**
+     * Cambia el estado de un miembro entre activo e inactivo.
+     *
+     * @param miembroId ID del miembro a modificar
+     * @param nuevoEstado Nuevo estado del miembro (true para activo, false para inactivo)
+     * @param session Sesion HTTP para validar autenticacion
+     * @param redirectAttributes Atributos para mensajes flash
+     * @return Redireccion a la lista de miembros con mensaje de resultado
+     */
     @PostMapping("/miembros/cambiar-estado")
     public String cambiarEstadoMiembro(@RequestParam Long miembroId,
                                        @RequestParam Boolean nuevoEstado,
@@ -134,8 +174,13 @@ public class AdministradorController {
         return "redirect:/admin/miembros";
     }
 
-
-    // Ver lista de planes
+    /**
+     * Muestra la lista completa de planes de membresia del gimnasio.
+     *
+     * @param session Sesion HTTP para validar autenticacion
+     * @param model Modelo para pasar datos a la vista
+     * @return Vista con lista de planes o redireccion al login
+     */
     @GetMapping("/planes")
     public String listarPlanes(HttpSession session, Model model) {
         Administrador admin = (Administrador) session.getAttribute("administrador");
@@ -150,7 +195,13 @@ public class AdministradorController {
         return "planes-admin";
     }
 
-    // Mostrar formulario para crear plan
+    /**
+     * Muestra el formulario para crear un nuevo plan de membresia.
+     *
+     * @param session Sesion HTTP para validar autenticacion
+     * @param model Modelo para pasar datos a la vista
+     * @return Vista del formulario de plan o redireccion al login
+     */
     @GetMapping("/planes/nuevo")
     public String mostrarFormularioNuevoPlan(HttpSession session, Model model) {
         Administrador admin = (Administrador) session.getAttribute("administrador");
@@ -165,7 +216,14 @@ public class AdministradorController {
         return "plan-form";
     }
 
-    // Crear o actualizar plan
+    /**
+     * Procesa la creacion o actualizacion de un plan de membresia.
+     *
+     * @param plan Objeto plan con los datos del formulario
+     * @param session Sesion HTTP para validar autenticacion
+     * @param redirectAttributes Atributos para mensajes flash
+     * @return Redireccion a la lista de planes con mensaje de resultado
+     */
     @PostMapping("/planes/guardar")
     public String guardarPlan(@ModelAttribute Plan plan,
                               HttpSession session,
@@ -189,7 +247,15 @@ public class AdministradorController {
         return "redirect:/admin/planes";
     }
 
-    // Mostrar formulario para editar plan
+    /**
+     * Muestra el formulario para editar un plan de membresia existente.
+     *
+     * @param id ID del plan a editar
+     * @param session Sesion HTTP para validar autenticacion
+     * @param model Modelo para pasar datos a la vista
+     * @param redirectAttributes Atributos para mensajes flash si hay error
+     * @return Vista del formulario con datos del plan o redireccion si no existe
+     */
     @GetMapping("/planes/editar/{id}")
     public String mostrarFormularioEditarPlan(@PathVariable Long id,
                                               HttpSession session,
@@ -215,7 +281,14 @@ public class AdministradorController {
         return "plan-form";
     }
 
-    // Eliminar plan
+    /**
+     * Elimina logicamente un plan de membresia desactivandolo.
+     *
+     * @param id ID del plan a eliminar
+     * @param session Sesion HTTP para validar autenticacion
+     * @param redirectAttributes Atributos para mensajes flash
+     * @return Redireccion a la lista de planes con mensaje de resultado
+     */
     @PostMapping("/planes/eliminar/{id}")
     public String eliminarPlan(@PathVariable Long id,
                                HttpSession session,
@@ -239,7 +312,15 @@ public class AdministradorController {
         return "redirect:/admin/planes";
     }
 
-    // Cambiar estado del plan (Activo/Inactivo)
+    /**
+     * Cambia el estado de un plan entre activo e inactivo.
+     *
+     * @param planId ID del plan a modificar
+     * @param nuevoEstado Nuevo estado del plan (true para activo, false para inactivo)
+     * @param session Sesion HTTP para validar autenticacion
+     * @param redirectAttributes Atributos para mensajes flash
+     * @return Redireccion a la lista de planes con mensaje de resultado
+     */
     @PostMapping("/planes/cambiar-estado")
     public String cambiarEstadoPlan(@RequestParam Long planId,
                                     @RequestParam Boolean nuevoEstado,

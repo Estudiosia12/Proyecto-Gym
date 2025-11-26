@@ -12,6 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Servicio para la gestion administrativa del gimnasio.
+ * Proporciona metricas, estadisticas, reportes y datos del dashboard para administradores.
+ *
+ * @author Juan Quispe, Pedro Perez
+ * @since 2025
+ */
 @Service
 public class AdminService {
 
@@ -36,36 +43,51 @@ public class AdminService {
     @Autowired
     private SesionCompletadaRepository sesionCompletadaRepository;
 
-
-    // Contar miembros activos
+    /**
+     * Obtiene el numero de miembros activos en el gimnasio.
+     *
+     * @return Cantidad de miembros con estado activo
+     */
     public long obtenerMiembrosActivos() {
         return miembroRepository.findMiembrosActivos().size();
     }
 
-    // Contar membresías activas (Premium + Básico activos)
+    /**
+     * Obtiene el numero de membresias activas en el gimnasio.
+     * Incluye tanto planes Premium como Basico activos.
+     *
+     * @return Cantidad de membresias activas
+     */
     public long obtenerMembresiasActivas() {
         return miembroRepository.findMiembrosActivos().size();
     }
 
-    // Contar asistencias del día (sesiones completadas hoy)
+    /**
+     * Cuenta las asistencias registradas en el dia actual.
+     * Se basa en sesiones completadas en la fecha de hoy.
+     *
+     * @return Cantidad de asistencias del dia
+     */
     public long obtenerAsistenciasHoy() {
         LocalDate hoy = LocalDate.now();
         return sesionCompletadaRepository.countByFechaCompletada(hoy);
     }
 
-    // Calcular ingresos del mes
+    /**
+     * Calcula los ingresos totales del mes actual.
+     * Suma los precios de los planes de todos los miembros activos.
+     * Prioriza el precio del planDetalle, y si no existe, busca el plan por nombre.
+     *
+     * @return Ingresos totales del mes como BigDecimal
+     */
     public BigDecimal calcularIngresosMes() {
-        // Obtener TODOS los miembros activos
         List<Miembro> miembrosActivos = miembroRepository.findMiembrosActivos();
-
         BigDecimal ingresoTotal = BigDecimal.ZERO;
 
         for (Miembro miembro : miembrosActivos) {
-            // Primero intentar obtener el precio del planDetalle
             if (miembro.getPlanDetalle() != null && miembro.getPlanDetalle().getPrecio() != null) {
                 ingresoTotal = ingresoTotal.add(miembro.getPlanDetalle().getPrecio());
             }
-            // Si no tiene planDetalle, buscar el plan por nombre
             else if (miembro.getPlan() != null && !miembro.getPlan().isEmpty()) {
                 Plan plan = planRepository.findByNombre(miembro.getPlan()).orElse(null);
                 if (plan != null && plan.getPrecio() != null) {
@@ -77,14 +99,16 @@ public class AdminService {
         return ingresoTotal;
     }
 
-    // Obtener distribución de planes
+    /**
+     * Obtiene la distribucion de miembros por tipo de plan.
+     * Cuenta cuantos miembros activos tienen plan Basico y cuantos Premium.
+     *
+     * @return Mapa con la cantidad de miembros por plan (Basico, Premium)
+     */
     public Map<String, Long> obtenerDistribucionPlanes() {
         Map<String, Long> distribucion = new HashMap<>();
-
-        // Obtener todos los miembros activos
         List<Miembro> miembrosActivos = miembroRepository.findMiembrosActivos();
 
-        // Contar cuántos tienen cada plan
         long countBasico = miembrosActivos.stream()
                 .filter(m -> m.getPlan() != null &&
                         (m.getPlan().equalsIgnoreCase("Basico") ||
@@ -103,7 +127,12 @@ public class AdminService {
         return distribucion;
     }
 
-    // Obtener porcentajes de planes para gráfico
+    /**
+     * Calcula los porcentajes de distribucion de planes para graficos.
+     * Convierte la cantidad de miembros por plan en porcentajes sobre el total.
+     *
+     * @return Mapa con porcentajes de cada plan (Basico, Premium)
+     */
     public Map<String, Integer> obtenerPorcentajesPlanes() {
         Map<String, Long> distribucion = obtenerDistribucionPlanes();
         long total = distribucion.get("Basico") + distribucion.get("Premium");
@@ -124,8 +153,12 @@ public class AdminService {
         return porcentajes;
     }
 
-
-    // Obtener todas las clases con información resumida
+    /**
+     * Obtiene un resumen de todas las clases grupales con informacion relevante.
+     * Incluye nombre, instructor, horario, cantidad de inscritos y capacidad.
+     *
+     * @return Lista de mapas con informacion resumida de cada clase
+     */
     public List<Map<String, Object>> obtenerResumenClases() {
         List<com.example.ProyectoGym.Model.ClaseGrupal> clases = claseGrupalRepository.findAll();
 
@@ -143,71 +176,98 @@ public class AdminService {
         }).toList();
     }
 
-
-    // Contar total de miembros
+    /**
+     * Obtiene el numero total de miembros registrados en el gimnasio.
+     *
+     * @return Cantidad total de miembros (activos e inactivos)
+     */
     public long obtenerTotalMiembros() {
         return miembroRepository.count();
     }
 
-    // Contar total de clases
+    /**
+     * Obtiene el numero total de clases grupales registradas.
+     *
+     * @return Cantidad total de clases
+     */
     public long obtenerTotalClases() {
         return claseGrupalRepository.count();
     }
 
-    // Contar total de instructores
+    /**
+     * Obtiene el numero total de instructores registrados.
+     *
+     * @return Cantidad total de instructores
+     */
     public long obtenerTotalInstructores() {
         return instructorRepository.count();
     }
 
-    // Contar reservas activas totales
+    /**
+     * Cuenta el numero total de reservas activas en el sistema.
+     *
+     * @return Cantidad de reservas con estado ACTIVA
+     */
     public long obtenerReservasActivas() {
         return reservaRepository.countByEstado("ACTIVA");
     }
 
-    // Obtener miembros próximos a vencer (próximos 7 días)
+    /**
+     * Obtiene la lista de miembros cuya membresia vence en los proximos 7 dias.
+     * Util para enviar recordatorios de renovacion.
+     *
+     * @return Lista de miembros proximos a vencer
+     */
     public List<Miembro> obtenerMiembrosProximosAVencer() {
         LocalDate hoy = LocalDate.now();
         LocalDate dentroDe7Dias = hoy.plusDays(7);
         return miembroRepository.findByFechaVencimientoBetween(hoy, dentroDe7Dias);
     }
 
-    // Obtener miembros vencidos
+    /**
+     * Obtiene la lista de miembros cuya membresia ya ha vencido.
+     *
+     * @return Lista de miembros con membresia vencida
+     */
     public List<Miembro> obtenerMiembrosVencidos() {
         LocalDate hoy = LocalDate.now();
         return miembroRepository.findByFechaVencimientoBefore(hoy);
     }
 
-
-    // Obtener reporte mensual
+    /**
+     * Genera un reporte mensual completo con estadisticas del gimnasio.
+     * Incluye nuevos miembros, ingresos, asistencias y clases populares del mes.
+     *
+     * @return Mapa con metricas mensuales
+     */
     public Map<String, Object> obtenerReporteMensual() {
         Map<String, Object> reporte = new HashMap<>();
 
         LocalDate inicioMes = LocalDate.now().withDayOfMonth(1);
         LocalDate finMes = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
 
-        // Nuevos miembros este mes
         List<Miembro> nuevosMiembros = miembroRepository
                 .findByFechaRegistroBetween(inicioMes, finMes);
         reporte.put("nuevosMiembros", nuevosMiembros.size());
 
-        // Ingresos del mes
         reporte.put("ingresosMes", calcularIngresosMes());
-
-        // Miembros activos
         reporte.put("miembrosActivos", obtenerMiembrosActivos());
 
-        // Asistencias del mes
         long asistenciasMes = sesionCompletadaRepository
                 .countByFechaCompletadaBetween(inicioMes, finMes);
         reporte.put("asistenciasMes", asistenciasMes);
 
-        // Clases con más reservas
         reporte.put("clasesPopulares", obtenerClasesPopulares(5));
 
         return reporte;
     }
 
-    // Obtener clases más populares
+    /**
+     * Obtiene las clases mas populares ordenadas por numero de reservas.
+     *
+     * @param limite Cantidad maxima de clases a retornar
+     * @return Lista de clases con su cantidad de reservas, ordenadas descendentemente
+     */
     public List<Map<String, Object>> obtenerClasesPopulares(int limite) {
         List<com.example.ProyectoGym.Model.ClaseGrupal> clases = claseGrupalRepository
                 .findByActivaTrue();
@@ -226,25 +286,25 @@ public class AdminService {
                 .toList();
     }
 
-
-    // Obtener todas las métricas del dashboard en un solo metodo
+    /**
+     * Consolida todas las metricas del dashboard en un unico metodo.
+     * Proporciona contadores principales, distribucion de planes, resumen de clases y alertas.
+     *
+     * @return Mapa con todas las metricas necesarias para el dashboard administrativo
+     */
     public Map<String, Object> obtenerMetricasDashboard() {
         Map<String, Object> metricas = new HashMap<>();
 
-        // Contadores principales
         metricas.put("miembrosActivos", obtenerMiembrosActivos());
         metricas.put("membresiasActivas", obtenerMembresiasActivas());
         metricas.put("asistenciasHoy", obtenerAsistenciasHoy());
         metricas.put("ingresosMes", calcularIngresosMes());
 
-        // Distribución de planes
         metricas.put("distribucionPlanes", obtenerDistribucionPlanes());
         metricas.put("porcentajesPlanes", obtenerPorcentajesPlanes());
 
-        // Resumen de clases
         metricas.put("resumenClases", obtenerResumenClases());
 
-        // Alertas
         metricas.put("miembrosProximosAVencer", obtenerMiembrosProximosAVencer().size());
         metricas.put("miembrosVencidos", obtenerMiembrosVencidos().size());
 
