@@ -1,5 +1,5 @@
 # --- Build / Maven ---
-target/
+##target/
 !.mvn/wrapper/maven-wrapper.properties
 .mvn/timing.properties
 

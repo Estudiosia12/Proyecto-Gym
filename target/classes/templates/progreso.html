@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Progreso - Gold Fitness</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+        --gold-primary: #131443;
+        --gold-accent: #D4B608;
+        --gold-white: #FFFFFF;
+    }
+
+    * {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #f5f5f5;
+    }
+
+    .sidebar {
+        background-color: var(--gold-primary);
+        min-height: 100vh;
+        width: 250px;
+        position: fixed;
+        left: 0;
+        top: 0;
+        padding: 2rem 0;
+        color: var(--gold-white);
+    }
+
+    .user-profile {
+        text-align: center;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: var(--gold-white);
+        margin: 0 auto 0.5rem;
+    }
+
+    .user-name {
+        font-weight: 500;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .user-email {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.7);
+    }
+
+    .nav-menu {
+        list-style: none;
+        padding: 0;
+    }
+
+    .nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        color: var(--gold-white);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: var(--gold-accent);
+    }
+
+    .nav-link.active {
+        background-color: var(--gold-accent);
+        color: var(--gold-primary);
+        font-weight: 500;
+    }
+
+    .nav-icon {
+        width: 30px;
+        margin-right: 1rem;
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .logout-section {
+        position: absolute;
+        bottom: 2rem;
+        width: 100%;
+        padding: 0 1.5rem;
+    }
+
+    .main-content {
+        margin-left: 250px;
+        padding: 2rem 3rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+        margin-bottom: 2rem;
+    }
+
+    .empty-state {
+        background-color: var(--gold-white);
+        border-radius: 15px;
+        padding: 4rem 2rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.3;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+        margin-bottom: 1rem;
+    }
+
+    .empty-text {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Objetivo header */
+    .objetivo-header {
+        background: linear-gradient(135deg, var(--gold-primary), #1e1f5a);
+        color: var(--gold-white);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .objetivo-item {
+        text-align: center;
+    }
+
+    .objetivo-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin-bottom: 0.5rem;
+    }
+
+    .objetivo-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+
+    /* Stats cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background-color: var(--gold-white);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+        margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .stat-badge-positive {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        display: inline-block;
+    }
+
+    .stat-badge-negative {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        display: inline-block;
+    }
+
+    /* Progreso section */
+    .progreso-card {
+        background-color: var(--gold-white);
+        border-radius: 15px;
+        padding: 2.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-bar-custom {
+        height: 40px;
+        background-color: #e0e0e0;
+        border-radius: 20px;
+        overflow: hidden;
+        margin: 1.5rem 0;
+        position: relative;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold-primary), var(--gold-accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: width 1s ease;
+    }
+
+    .progress-info {
+        text-align: center;
+        color: #666;
+        margin-top: 1rem;
+    }
+
+    .progress-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+    }
+
+    /* Historial */
+    .historial-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .historial-item {
+        background-color: #f8f9fa;
+        border-left: 4px solid #28a745;
+        border-radius: 8px;
+        padding: 1.2rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+    }
+
+    .historial-info h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+        margin-bottom: 0.3rem;
+    }
+
+    .historial-fecha {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .historial-observacion {
+        color: #666;
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    .historial-icon {
+        font-size: 1.5rem;
+        color: #28a745;
+    }
+
+    .empty-historial {
+        text-align: center;
+        padding: 2rem;
+        color: #999;
+    }
+
+    /* Próxima sesión */
+    .proxima-sesion {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .proxima-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .proxima-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .proxima-fecha {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 100%;
+            position: relative;
+            min-height: auto;
+        }
+
+        .main-content {
+            margin-left: 0;
+            padding: 1rem;
+        }
+
+        .logout-section {
+            position: relative;
+            bottom: 0;
+        }
+
+        .objetivo-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="user-profile">
+    <div class="user-avatar">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #131443; width: 100%; height: 100%; padding: 10px;">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+    </div>
+    <div class="user-name" th:text="${miembro != null ? miembro.nombre : 'Nombre usuario'}">Nombre usuario</div>
+    <div class="user-email" th:text="${miembro != null ? miembro.email : 'Correo'}">Correo</div>
+  </div>
+
+  <ul class="nav-menu">
+    <li class="nav-item">
+      <a href="/miembro/dashboard" class="nav-link">
+        <i class="bi bi-house-door-fill nav-icon"></i>
+        Inicio
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/miembro/perfil" class="nav-link">
+        <i class="bi bi-person-badge-fill nav-icon"></i>
+        Perfil
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/miembro/clases" class="nav-link">
+        <i class="bi bi-people-fill nav-icon"></i>
+        Clases
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/miembro/rutinas" class="nav-link">
+        <i class="bi bi-card-list nav-icon"></i>
+        Rutinas
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/miembro/progreso" class="nav-link active">
+        <i class="bi bi-graph-up-arrow nav-icon"></i>
+        Progreso
+      </a>
+    </li>
+  </ul>
+
+  <div class="logout-section">
+    <a href="/logout" class="nav-link">
+      <i class="bi bi-door-open-fill nav-icon"></i>
+      Cerrar sesión
+    </a>
+  </div>
+</div>
+
+<div class="main-content">
+  <h1 class="page-title">Progreso</h1>
+
+  <!-- SI NO TIENE RUTINA -->
+  <div th:if="${!tieneRutina}" class="empty-state">
+    <div class="empty-icon">📊</div>
+    <h2 class="empty-title">Aún no tienes progreso</h2>
+    <p class="empty-text">Selecciona una rutina para comenzar a registrar tu progreso</p>
+    <a href="/miembro/rutinas" class="btn btn-primary btn-lg">Ir a Rutinas</a>
+  </div>
+
+  <!-- SI TIENE RUTINA -->
+  <div th:if="${tieneRutina}">
+
+    <!-- Header con objetivo -->
+    <div class="objetivo-header">
+      <div class="objetivo-item">
+        <div class="objetivo-label">🎯 Objetivo</div>
+        <div class="objetivo-value" th:text="${asignacion.objetivoSeleccionado}">Bajar peso</div>
+      </div>
+      <div class="objetivo-item">
+        <div class="objetivo-label">📊 Nivel</div>
+        <div class="objetivo-value" th:text="${asignacion.nivelSeleccionado}">Principiante</div>
+      </div>
+      <div class="objetivo-item">
+        <div class="objetivo-label">📅 Desde</div>
+        <div class="objetivo-value" th:text="${#temporals.format(asignacion.fechaAsignacion, 'dd/MM/yyyy')}">18/10/2025</div>
+      </div>
+    </div>
+
+    <!-- Métricas generales -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🏋️</div>
+        <div class="stat-value" th:text="${sesionesTotales}">12</div>
+        <div class="stat-label">Entrenamientos totales</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value" th:text="${sesionesEsteMes}">8</div>
+        <div class="stat-label">Sesiones este mes</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value" th:text="${porcentajeAsistencia + '%'}">67%</div>
+        <div class="stat-label">Asistencia</div>
+        <div th:if="${diferenciaMesAnterior > 0}" class="stat-badge-positive" th:text="'+' + ${diferenciaMesAnterior} + '% vs mes anterior'">+5%</div>
+        <div th:if="${diferenciaMesAnterior < 0}" class="stat-badge-negative" th:text="${diferenciaMesAnterior} + '% vs mes anterior'">-5%</div>
+        <div th:if="${diferenciaMesAnterior == 0}" style="margin-top: 0.5rem; color: #666; font-size: 0.85rem;">Igual que mes anterior</div>
+      </div>
+    </div>
+
+    <!-- Progreso del mes -->
+    <div class="progreso-card">
+      <h3 class="section-title">Progreso del Mes</h3>
+      <div class="progress-bar-custom">
+        <div class="progress-fill" th:style="'width: ' + ${porcentajeProgreso} + '%'" th:text="${porcentajeProgreso + '%'}">
+          60%
+        </div>
+      </div>
+      <div class="progress-meta">
+        <div>
+          <strong th:text="${sesionesEsteMes}">8</strong> /
+          <span th:text="${asignacion.rutinaPredefinida.frecuenciaSemanal * 4}">12</span> sesiones completadas
+        </div>
+        <div>
+          Faltan: <strong th:text="${sesionesRestantes}">4</strong> sesiones
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial de sesiones -->
+    <div class="progreso-card">
+      <h3 class="section-title">Historial de Sesiones</h3>
+
+      <div th:if="${#lists.isEmpty(ultimasSesiones)}" class="empty-historial">
+        <p>No hay sesiones registradas aún</p>
+        <small>El administrador registrará tus sesiones completadas</small>
+      </div>
+
+      <ul th:if="${!#lists.isEmpty(ultimasSesiones)}" class="historial-list">
+        <li th:each="sesion : ${ultimasSesiones}" class="historial-item">
+          <div class="historial-info">
+            <h4>✅ Sesión completada</h4>
+            <div class="historial-fecha" th:text="${'Fecha: ' + #temporals.format(sesion.fechaCompletada, 'dd/MM/yyyy')}">
+              16/10/2025
+            </div>
+            <div th:if="${sesion.observaciones}" class="historial-observacion">
+              <i class="bi bi-chat-left-quote"></i>
+              <span th:text="${sesion.observaciones}">Excelente desempeño</span>
+            </div>
+          </div>
+          <div class="historial-icon">✅</div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Próxima sesión recomendada -->
+    <div th:if="${proximaSesion}" class="proxima-sesion">
+      <div class="proxima-icon">📅</div>
+      <div class="proxima-title">Próxima sesión recomendada</div>
+      <div class="proxima-fecha" th:text="${#temporals.format(proximaSesion, 'dd/MM/yyyy')}">18/10/2025</div>
+      <small style="opacity: 0.9;">Basado en tu frecuencia de entrenamiento</small>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

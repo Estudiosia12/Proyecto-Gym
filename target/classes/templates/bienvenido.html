@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido - Gold Fitness</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts - Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --gold-primary: #131443;
+            --gold-accent: #D4B608;
+            --gold-white: #FFFFFF;
+        }
+
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--gold-white);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .header-section {
+            background-color: var(--gold-primary);
+            padding: 2rem 0;
+        }
+
+        .navbar-brand {
+            color: var(--gold-white) !important;
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+
+        .gold-text {
+            color: var(--gold-accent) !important;
+        }
+
+        .welcome-container {
+            min-height: calc(100vh - 120px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .welcome-header {
+            text-align: center;
+            padding: 3rem 0 2rem 0;
+            background-color: var(--gold-white);
+        }
+
+        .welcome-title {
+            color: var(--gold-primary);
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            color: var(--gold-accent);
+            font-weight: 500;
+            font-size: 1.2rem;
+        }
+
+        .content-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 2rem 0;
+        }
+
+        .image-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 400px;
+        }
+
+        .welcome-image {
+            width: 100%;
+            height: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .maintenance-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            margin: 2rem 0;
+            min-height: 400px;
+        }
+
+        .maintenance-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--gold-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .maintenance-icon::before {
+            content: "🔧";
+            font-size: 2.5rem;
+        }
+
+        .maintenance-title {
+            color: var(--gold-primary);
+            font-weight: 700;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .maintenance-text {
+            color: #666;
+            font-size: 1.1rem;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .logout-section {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .btn-logout {
+            background-color: var(--gold-primary);
+            color: var(--gold-white);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background-color: var(--gold-accent);
+            color: var(--gold-primary);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .welcome-subtitle {
+                font-size: 1rem;
+            }
+
+            .content-section {
+                flex-direction: column;
+            }
+
+            .image-container {
+                min-height: 250px;
+                margin-bottom: 2rem;
+            }
+
+            .maintenance-section {
+                min-height: 300px;
+                margin: 1rem 0;
+            }
+
+            .maintenance-title {
+                font-size: 1.5rem;
+            }
+
+            .maintenance-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<div class="header-section">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            GOLD <span class="gold-text">FITNESS</span>
+        </a>
+    </div>
+</div>
+
+<!-- Welcome Container -->
+<div class="welcome-container">
+    <!-- Welcome Header -->
+    <div class="welcome-header">
+        <h1 class="welcome-title">Bienvenido <span th:text="${miembro != null ? miembro.nombre : 'Usuario'}">Usuario</span></h1>
+        <p class="welcome-subtitle">Tu progreso fitness te está esperando</p>
+    </div>
+
+    <!-- Content Section -->
+    <div class="content-section">
+        <div class="container">
+            <div class="row">
+                <!-- Image Section -->
+                <div class="col-lg-6 mb-4">
+                    <div class="image-container">
+                        <img src="/imagenes/bienvenido.jpg" alt="Bienvenido a Gold Fitness" class="welcome-image">
+                    </div>
+                </div>
+
+                <!-- Maintenance Section -->
+                <div class="col-lg-6">
+                    <div class="maintenance-section">
+                        <div class="maintenance-icon"></div>
+                        <h2 class="maintenance-title">En Mantenimiento</h2>
+                        <p class="maintenance-text">
+                            Estamos trabajando para ofrecerte la mejor experiencia.
+                            Pronto se habilitarán todas las funcionalidades del sistema.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Section -->
+    <div class="logout-section">
+        <div class="container">
+            <a href="/login" class="btn-logout">Cerrar Sesión</a>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
